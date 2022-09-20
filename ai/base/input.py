@@ -29,7 +29,7 @@ class InputStream(object):
         '''
         try:
             frame = self.queue.get(block=block, timeout=timeout)
-        except:
+        except Exception:
             return None
         return frame
 
