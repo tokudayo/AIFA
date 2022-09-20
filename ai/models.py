@@ -1,6 +1,6 @@
 from .base.hpe import HpeModel
 import mediapipe as mp
-from LiteHRNet import LiteHRNet
+from .LiteHRNet import LiteHRNet
 class BlazePose(HpeModel):
     '''Google's BlazePose model is a 3D HPE model that can detect 33 landmarks.'''
     def __init__(self,complexity=1):
@@ -12,17 +12,11 @@ class BlazePose(HpeModel):
     
         pred = self.model.process(frame)
         if pred.pose_landmarks:
-            #results = self.to_17_landmarks(pred.pose_landmarks)
             results = pred.pose_landmarks
         else :
             results = None
         return results
 
-    def to_17_landmarks(self, results, z_plane=False):
-        '''
-        Convert to 17 landmarks.
-        '''
-        raise NotImplementedError
 
     def predict(self, frame):
         return self.forward(frame)
@@ -33,9 +27,8 @@ class BlazePose(HpeModel):
     def __repr__(self):
         return "BlazePose"
 
-
 class LiteHRNet(HpeModel):
-    '''LiteHRNet is a 2D HPE model that can detect 17 landmarks.'''
+    
     def __init__(self):
         # LiteHRNet-18 implementation
         base_channel = 16

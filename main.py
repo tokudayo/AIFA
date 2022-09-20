@@ -1,16 +1,18 @@
 from threading import Thread
 from ai.base.utils import Timer
 
-from ai.input import Cv2VideoStream
+from ai.input import Cv2VideoStream, WebcamStream
 from ai.dummy import DummyHpeModel
-
+from ai.models import BlazePose
 
 
 
 class AIFlow(object):
     def __init__(self):
-        self.input = Cv2VideoStream("sample.mp4")
-        self.model = DummyHpeModel()
+        # self.input = Cv2VideoStream("sample.mp4")
+        self.input = WebcamStream()
+        # self.model = DummyHpeModel()
+        self.model = BlazePose()
         self.exercise = None
 
     def start(self):
@@ -40,4 +42,5 @@ if __name__ == "__main__":
     thread = flow.start()
     thread.join()
     timer.stop()
+
     print(f"Elapsed: {timer.elapsed:.2f}s")
