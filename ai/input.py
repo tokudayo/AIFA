@@ -20,7 +20,6 @@ class Cv2VideoStream(InputStream):
         cap.release()
 
 
-
 class WebcamStream(InputStream):
     '''
     Process webcam stream.

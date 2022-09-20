@@ -1,16 +1,16 @@
+import time
+import cv2
 from threading import Thread
 from ai.base.utils import Timer
 
 from ai.input import Cv2VideoStream
-from ai.dummy import DummyHpeModel
-
-
+from ai.models import BlazePose
 
 
 class AIFlow(object):
     def __init__(self):
-        self.input = Cv2VideoStream("sample.mp4")
-        self.model = DummyHpeModel()
+        self.input = Cv2VideoStream("pu.mp4")
+        self.model = BlazePose()
         self.exercise = None
 
     def start(self):
@@ -28,11 +28,19 @@ class AIFlow(object):
             if frame is not None: cnt += 1
             # Preprocessing, batching, etc.
             keypoints = self.model(frame)
+            drawn = self.model.draw(frame, keypoints)
+            cv2.imshow("funny", drawn)
+            time.sleep(0.1)
+            if cv2.waitKey(1) == ord('q'):
+                break
             # Postprocessing, etc.
-            if self.exercise is not None:
-                self.exercise(keypoints)
+            # if self.exercise is not None:
+            #     self.exercise(keypoints)
+        
+        print("Stopped")
+        cv2.destroyAllWindows()
 
-            
+
 if __name__ == "__main__":
     timer = Timer()
     timer.start()

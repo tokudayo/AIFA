@@ -1,15 +1,15 @@
 from .base.hpe import HpeModel
 import mediapipe as mp
-from LiteHRNet import LiteHRNet
+# from LiteHRNet import LiteHRNet
 class BlazePose(HpeModel):
     '''Google's BlazePose model is a 3D HPE model that can detect 33 landmarks.'''
     def __init__(self,complexity=1):
         self.model = mp.solutions.pose.Pose(
-                    static_image_mode=True,
+                    static_image_mode=False,
                     model_complexity=complexity,
                     min_detection_confidence=0.5)
+
     def forward(self, frame):
-    
         pred = self.model.process(frame)
         if pred.pose_landmarks:
             #results = self.to_17_landmarks(pred.pose_landmarks)
@@ -17,6 +17,15 @@ class BlazePose(HpeModel):
         else :
             results = None
         return results
+
+    def draw(self, frame, results):
+        '''
+        Draw the results on the frame.
+        '''
+        if results is None:
+            return frame
+        mp.solutions.drawing_utils.draw_landmarks(frame, results, mp.solutions.pose.POSE_CONNECTIONS)
+        return frame
 
     def to_17_landmarks(self, results, z_plane=False):
         '''
