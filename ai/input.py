@@ -1,6 +1,7 @@
 import cv2
 from .base import InputStream
 
+
 class Cv2VideoStream(InputStream):
     def __init__(self, video_path, maxsize=30):
         super().__init__(maxsize=maxsize)

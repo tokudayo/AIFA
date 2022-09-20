@@ -1,0 +1,43 @@
+from threading import Thread
+from ai.base.utils import Timer
+
+from ai.input import Cv2VideoStream
+from ai.dummy import DummyHpeModel
+
+
+
+
+class AIFlow(object):
+    def __init__(self):
+        self.input = Cv2VideoStream("sample.mp4")
+        self.model = DummyHpeModel()
+        self.exercise = None
+
+    def start(self):
+        self.thread = Thread(target=self.run)
+        self.thread.start()
+        return self.thread
+
+    def run(self):
+        self.input.start()
+        print("Started")
+        cnt = 0
+        # Need to split this into two threads, later.
+        while not self.input.stopped:
+            frame = self.input.get_frame()
+            if frame is not None: cnt += 1
+            # Preprocessing, batching, etc.
+            keypoints = self.model(frame)
+            # Postprocessing, etc.
+            if self.exercise is not None:
+                self.exercise(keypoints)
+
+            
+if __name__ == "__main__":
+    timer = Timer()
+    timer.start()
+    flow = AIFlow()
+    thread = flow.start()
+    thread.join()
+    timer.stop()
+    print(f"Elapsed: {timer.elapsed:.2f}s")

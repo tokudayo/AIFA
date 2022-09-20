@@ -1,5 +1,7 @@
 from queue import Queue
 from threading import Thread
+import time
+
 
 class InputStream(object):
     def __init__(self, maxsize=30):
@@ -22,9 +24,9 @@ class InputStream(object):
         '''
         raise NotImplementedError
 
-    def get_frame(self, block=False, timeout=1.):
+    def get_frame(self, block=True, timeout=1.):
         '''
-        Get a frame from the queue. Default to instant return (non-blocking).
+        Get a frame from the queue. Default to blocking with 1s timeout.
         '''
         try:
             frame = self.queue.get(block=block, timeout=timeout)
