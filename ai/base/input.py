@@ -14,13 +14,23 @@ class InputStream(object):
         '''
         self.thread = Thread(target=self.run)
         self.thread.start()
-        return self
+        return self.thread
     
     def run(self):
         '''
         Code to run the stream. This is where frames are fed to a queue.
         '''
         raise NotImplementedError
+
+    def get_frame(self, block=False, timeout=1.):
+        '''
+        Get a frame from the queue. Default to instant return (non-blocking).
+        '''
+        try:
+            frame = self.queue.get(block=block, timeout=timeout)
+        except:
+            return None
+        return frame
 
     @property
     def stopped(self):

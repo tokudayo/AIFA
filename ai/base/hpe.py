@@ -1,4 +1,4 @@
-class HPEModel(object):
+class HpeModel(object):
     def __init__(self):
         '''
         Define model initialization.
