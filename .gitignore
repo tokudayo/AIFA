@@ -129,3 +129,6 @@ dmypy.json
 .pyre/
 # Misc
 .bat
+
+*.mp4
+test.py

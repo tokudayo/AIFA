@@ -37,14 +37,15 @@ class ShoulderPress():
     def update(self, kps):
         """Pass normalized keypoints info in and update internal state"""
         for i, kp in enumerate(kps):
-            self.kps[kps_anno[i]].update(kp)
+            self.kps[kps_anno[i]].update(*kp)
 
     @property
     def state(self):
+        print(self.kps['left_elbow'].position)
         kps = self.kps
-        if kps['left_elbow'].avg_velocity > -0.1:
+        if kps['left_elbow'].velocity[1] < -0.05:
             return 'up'
-        elif kps['left_elbow'].avg_velocity < 0.1:
+        elif kps['left_elbow'].velocity[1] > 0.05:
             return 'down'
         else:
             return 'none'

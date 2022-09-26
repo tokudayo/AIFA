@@ -34,6 +34,6 @@ def blazepose_kp_to_coco_kp(landmarks):
     # Filter out the keypoints
     landmarks = [landmarks[i] for i in idx]
     # Convert to COCO format
-    landmarks = [[landmark.x, landmark.y, landmark.visibility] for landmark in landmarks]
+    landmarks = [[landmark.x, landmark.y, landmark.z] for landmark in landmarks]
 
     return landmarks

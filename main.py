@@ -1,10 +1,11 @@
 from threading import Thread
 import cv2
 
-from ai.base.utils import Timer
+from ai.base.utils import Timer, blazepose_kp_to_coco_kp
 from ai.input import Cv2VideoStream, WebcamStream
 from ai.dummy import DummyHpeModel
 from ai.models import BlazePose
+from ai.exercises import ShoulderPress
 
 
 class AIFlow(object):
@@ -13,6 +14,7 @@ class AIFlow(object):
         self.input = WebcamStream()
         # self.model = DummyHpeModel()
         self.model = BlazePose()
+        self.evaluator = ShoulderPress()
         self.exercise = None
 
     def start(self):
@@ -28,7 +30,16 @@ class AIFlow(object):
             keypoints = self.model(frame)
             drawn = self.model.draw(frame, keypoints)
             
-            cv2.imshow("funny", drawn) 
+            if keypoints is None: continue
+
+            results = blazepose_kp_to_coco_kp(keypoints.landmark)
+
+            self.evaluator.update(results)
+            state = self.evaluator.state
+            if state != 'none':
+                print(self.evaluator.state)
+
+            cv2.imshow("funny", drawn)
             if cv2.waitKey(1) == ord('q'):
                 self.input.stop()
                 break
@@ -44,4 +55,4 @@ if __name__ == "__main__":
     thread.join()
     timer.stop()
 
-    print("Elapsed: {timer.elapsed:.2f}s")
+    print(f"Elapsed: {timer.elapsed:.2f}s")

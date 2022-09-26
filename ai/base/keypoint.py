@@ -14,6 +14,10 @@ class KeyPoint(object):
         self.pos[0] = np.array([x, y, z])
 
     @property
+    def position(self):
+        return self.pos[0]
+
+    @property
     def velocity(self):
         return self.pos[0] - self.pos[1]
     
