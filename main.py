@@ -1,9 +1,9 @@
 from threading import Thread
+
 import cv2
 
-from ai.base.utils import Timer, blazepose_kp_to_coco_kp
-from ai.input import Cv2VideoStream, WebcamStream
-from ai.dummy import DummyHpeModel
+from utils import Timer
+from ai.inputs import Cv2VideoStream, Cv2WebcamStream
 from ai.models import BlazePose
 from ai.exercises import ShoulderPress
 
@@ -11,7 +11,7 @@ from ai.exercises import ShoulderPress
 class AIFlow(object):
     def __init__(self):
         # self.input = Cv2VideoStream("sample.mp4")
-        self.input = WebcamStream()
+        self.input = Cv2WebcamStream()
         # self.model = DummyHpeModel()
         self.model = BlazePose()
         self.evaluator = ShoulderPress()
@@ -32,7 +32,7 @@ class AIFlow(object):
             
             if keypoints is None: continue
 
-            results = blazepose_kp_to_coco_kp(keypoints.landmark)
+            results = self.model.postprocess(keypoints.landmark)
 
             self.evaluator.update(results)
             state = self.evaluator.state

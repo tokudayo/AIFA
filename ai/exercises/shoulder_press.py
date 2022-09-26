@@ -1,4 +1,4 @@
-from ai.base.keypoint import KeyPoint
+from ai.base import KeyPoint
 
 
 kps_anno = {
@@ -37,15 +37,15 @@ class ShoulderPress():
     def update(self, kps):
         """Pass normalized keypoints info in and update internal state"""
         for i, kp in enumerate(kps):
-            self.kps[kps_anno[i]].update(*kp)
+            self.kps[kps_anno[i]].update(*kp[:3])
 
     @property
     def state(self):
         print(self.kps['left_elbow'].position)
         kps = self.kps
-        if kps['left_elbow'].velocity[1] < -0.05:
+        if kps['left_elbow'].velocity[1] < -0.01:
             return 'up'
-        elif kps['left_elbow'].velocity[1] > 0.05:
+        elif kps['left_elbow'].velocity[1] > 0.01:
             return 'down'
         else:
             return 'none'

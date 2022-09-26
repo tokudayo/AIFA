@@ -10,6 +10,50 @@ import torch.nn.functional as F
 from torch.nn.modules.batchnorm import _BatchNorm
 import torch.utils.checkpoint as cp
 
+from ai.base.hpe import HpeModel
+
+
+class LiteHRNet(HpeModel):
+    
+    def __init__(self):
+        # LiteHRNet-18 implementation
+        base_channel = 16
+        cfg=dict(
+                stem=dict(stem_channels=32, out_channels=32, expand_ratio=1),
+                num_stages=3,
+                stages_spec=dict(
+                    num_modules=(2, 4, 2),
+                    num_branches=(2, 3, 4),
+                    num_blocks=(2, 2, 2),
+                    module_type=('LITE', 'LITE', 'LITE'),
+                    with_fuse=(True, True, True),
+                    reduce_ratios=(8, 8, 8),
+                    num_channels=(
+                        (base_channel, base_channel*2),
+                        (base_channel, base_channel*2, base_channel*4),
+                        (base_channel, base_channel*2, base_channel*4, base_channel*8),
+                    )),
+            )
+        self.model = LiteHRNet(cfg, in_channels=3)
+        #self.model.load_state_dict(torch.load('LiteHRNet.pth'))
+        self.model.eval()
+
+    def forward(self, frame):
+    
+        pred = self.model.process(frame)
+        if pred.pose_landmarks:
+            #results = self.to_17_landmarks(pred.pose_landmarks)
+            results = pred.pose_landmarks
+        else :
+            results = None
+        return results
+
+    def predict(self, frame):
+        return self.forward(frame)
+    
+    def __repr__(self):
+        return "LiteHRNet"
+
 
 def channel_shuffle(x, groups):
     batch_size, num_channels, height, width = x.size()
