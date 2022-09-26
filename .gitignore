@@ -132,3 +132,4 @@ dmypy.json
 
 *.mp4
 test.py
+.vscode

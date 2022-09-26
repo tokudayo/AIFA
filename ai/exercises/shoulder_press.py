@@ -1,4 +1,5 @@
 from typing import List, Tuple
+
 from ai.base import KeyPoint
 
 
@@ -22,12 +23,13 @@ kps_anno = {
     16: 'right_ankle',
 }
 
+
 class ShoulderPress():
     """
     Needs to:
     - Somehow detect what part of exercise is being performed by:
-    + Tracking position, velocity, acceleration of keypoints. Downside is if the HPE model is unstable, this will be too.
-    + 
+    + Tracking position, velocity, acceleration of keypoints. Downside is if
+    the HPE model is unstable, this will be too.
     - Evaluation for that part of exercise
     - Return a score for that part of exercise"""
     def __init__(self, memory: int = 30):

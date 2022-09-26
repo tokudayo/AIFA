@@ -26,11 +26,12 @@ class AIFlow(object):
         self.input.start()
         while not self.input.stopped:
             frame = self.input.get_frame()
-            if frame is None: continue
+            if frame is None:
+                continue
             keypoints = self.model(frame)
             drawn = self.model.draw(frame, keypoints)
-            
-            if keypoints is None: continue
+            if keypoints is None:
+                continue
 
             results = self.model.postprocess(keypoints.landmark)
 
@@ -43,7 +44,7 @@ class AIFlow(object):
             if cv2.waitKey(1) == ord('q'):
                 self.input.stop()
                 break
-        
+
         cv2.destroyAllWindows()
 
 
