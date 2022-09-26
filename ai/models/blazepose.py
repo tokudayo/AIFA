@@ -38,7 +38,7 @@ class BlazePose(HpeModel):
         return self.forward(frame)
     
     @staticmethod
-    def _blazepose_kp_to_coco_kp(landmarks: List[mp._C.PoseLandmark]):
+    def _blazepose_kp_to_coco_kp(landmarks: List[object]):
         '''
         This function converts the 33 keypoints to 17 keypoints:
                 
