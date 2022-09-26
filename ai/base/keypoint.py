@@ -9,7 +9,7 @@ class KeyPoint(object):
         self.memory = memory
         self.pos = np.zeros((memory, 3))
     
-    def update(self, x, y, z):
+    def update(self, x: float, y: float, z: float):
         self.pos = np.roll(self.pos, 1, axis=0)
         self.pos[0] = np.array([x, y, z])
 
@@ -23,7 +23,7 @@ class KeyPoint(object):
     
     @property
     def avg_velocity(self):
-        return np.mean(self.pos[1:] - self.pos[:-1], axis=0)
+        return np.mean(self.pos[:-1] - self.pos[1:], axis=0)
     
     @property
     def acceleration(self):

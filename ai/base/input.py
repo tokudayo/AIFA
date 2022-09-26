@@ -3,11 +3,11 @@ from threading import Thread
 
 
 class InputStream(object):
-    def __init__(self, maxsize=30):
+    def __init__(self, max_queue_size: int = 30):
         '''
         All frames should be dumped into a queue for further processing.
         '''
-        self.queue = Queue(maxsize=maxsize)
+        self.queue = Queue(maxsize=max_queue_size)
     
     def start(self):
         '''
@@ -23,7 +23,7 @@ class InputStream(object):
         '''
         raise NotImplementedError
 
-    def get_frame(self, block=True, timeout=1.):
+    def get_frame(self, block: bool = True, timeout: float = 1.):
         '''
         Get a frame from the queue. Default to blocking with 1s timeout.
         '''
