@@ -1,17 +1,23 @@
+from typing import List, Literal
+
 import mediapipe as mp
+import numpy as np
 
 from ai.base import HpeModel
 
 
 class BlazePose(HpeModel):
     '''Google's BlazePose model is a 3D HPE model that can detect 33 landmarks.'''
-    def __init__(self,complexity=1):
+    def __init__(self,
+                 complexity: Literal[0, 1, 2, 3] = 1,
+                 static_mode: bool = False,
+                 min_detection_confidence: float = 0.5):
         self.model = mp.solutions.pose.Pose(
-                    static_image_mode=False,
+                    static_image_mode=static_mode,
                     model_complexity=complexity,
-                    min_detection_confidence=0.5)
+                    min_detection_confidence=min_detection_confidence)
 
-    def forward(self, frame):
+    def forward(self, frame: np.array):
         pred = self.model.process(frame)
         if pred.pose_landmarks:
             results = pred.pose_landmarks
@@ -19,7 +25,7 @@ class BlazePose(HpeModel):
             results = None
         return results
 
-    def draw(self, frame, results):
+    def draw(self, frame: np.array, results: object):
         '''
         Draw the results on the frame.
         '''
@@ -28,11 +34,11 @@ class BlazePose(HpeModel):
         mp.solutions.drawing_utils.draw_landmarks(frame, results, mp.solutions.pose.POSE_CONNECTIONS)
         return frame
 
-    def predict(self, frame):
+    def predict(self, frame: np.array):
         return self.forward(frame)
     
     @staticmethod
-    def _blazepose_kp_to_coco_kp(landmarks):
+    def _blazepose_kp_to_coco_kp(landmarks: List[mp._C.PoseLandmark]):
         '''
         This function converts the 33 keypoints to 17 keypoints:
                 

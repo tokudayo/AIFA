@@ -7,8 +7,8 @@ class Cv2WebcamStream(InputStream):
     '''
     Process webcam stream. Need to manually call stop() to release the camera.
     '''
-    def __init__(self, max_fps=30, maxsize=5):
-        super().__init__(maxsize=maxsize)
+    def __init__(self, max_fps: int = 30, max_queue_size: int = 5):
+        super().__init__(max_queue_size=max_queue_size)
         self.max_fps = max_fps
         self.cap = cv2.VideoCapture(0)
         self.w = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))

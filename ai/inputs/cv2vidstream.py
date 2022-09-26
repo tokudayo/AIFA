@@ -7,8 +7,8 @@ class Cv2VideoStream(InputStream):
     '''
     Process video streams in a separate thread.
     '''
-    def __init__(self, video_path, maxsize=30):
-        super().__init__(maxsize=maxsize)
+    def __init__(self, video_path: str, max_queue_size: int = 30):
+        super().__init__(max_queue_size=max_queue_size)
         self.video_path = video_path
 
     def run(self):
