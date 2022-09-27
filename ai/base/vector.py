@@ -28,8 +28,10 @@ class Vector(object):
     def magnitude(self):
         return np.linalg.norm(self.vector)
     
-    def is_against(self, other: 'Vector'):
-        raise NotImplementedError
+    def is_against(self, other: 'Vector', threshold: float = 0.5):
+        if np.dot(self.vector, other.vector) < threshold:
+            return True
+        else: return False
 
     def direction(self):
         return self.vector / self.magnitude()
