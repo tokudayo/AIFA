@@ -1,6 +1,6 @@
 import numpy as np
 
-from ..base import HpeModel
+from ai.base import HpeModel
 
 
 class DummyHpeModel(HpeModel):

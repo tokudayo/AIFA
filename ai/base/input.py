@@ -8,7 +8,7 @@ class InputStream(object):
         All frames should be dumped into a queue for further processing.
         '''
         self.queue = Queue(maxsize=max_queue_size)
-    
+
     def start(self):
         '''
         Start a input stream thread.
@@ -16,7 +16,7 @@ class InputStream(object):
         self.thread = Thread(target=self.run)
         self.thread.start()
         return self.thread
-    
+
     def run(self):
         '''
         Code to run the stream. This is where frames are fed to a queue.
@@ -39,4 +39,3 @@ class InputStream(object):
         Check if the stream is stopped.
         '''
         return not self.thread.is_alive()
-
