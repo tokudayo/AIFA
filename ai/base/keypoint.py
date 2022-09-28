@@ -4,10 +4,16 @@ import numpy as np
 
 
 class KeyPoint(object):
-    def __init__(self, name: Optional[str] = None, memory: int = 5):
+    def __init__(self,
+                 name: Optional[str] = None,
+                 x: float = 0.,
+                 y: float = 0.,
+                 z: float = 0.,
+                 memory: int = 5):
         self.name = name
         self.memory = memory
         self.pos = np.zeros((memory, 3))
+        self.pos[0] = np.array([x, y, z])
 
     def update(self, x: float, y: float, z: float):
         self.pos = np.roll(self.pos, 1, axis=0)
