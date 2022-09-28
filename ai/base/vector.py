@@ -20,7 +20,7 @@ class Vector(object):
     def magnitude(self):
         return norm(self.vector)
 
-    def is_against(self, other: 'Vector', threshold: float = 0.5):
+    def is_against(self, other: 'Vector', threshold: float = -0.5):
         return self.vector@other.vector < threshold
 
     def direction(self):
@@ -28,3 +28,11 @@ class Vector(object):
 
     def __repr__(self) -> str:
         return f'Vector({self.name})'
+
+
+xaxis = Vector(
+    KeyPoint('origin', 0, 0), KeyPoint('x-axis', 1, 0)
+)
+yaxis = Vector(
+    KeyPoint('origin', 0, 0), KeyPoint('y-axis', 0, 1)
+)
