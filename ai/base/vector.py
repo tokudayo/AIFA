@@ -21,7 +21,7 @@ class Vector(object):
         return norm(self.vector)
 
     def is_against(self, other: 'Vector', threshold: float = 0.5):
-        return np.dot(self.vector, other.vector) < threshold
+        return self.vector@other.vector < threshold
 
     def direction(self):
         return self.vector / self.magnitude()
