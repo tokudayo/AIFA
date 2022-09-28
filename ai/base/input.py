@@ -8,6 +8,7 @@ class InputStream(object):
         All frames should be dumped into a queue for further processing.
         '''
         self.queue = Queue(maxsize=max_queue_size)
+        self._stop_signal = False
 
     def start(self):
         '''
@@ -20,6 +21,7 @@ class InputStream(object):
     def run(self):
         '''
         Code to run the stream. This is where frames are fed to a queue.
+        Must response to stop signal.
         '''
         raise NotImplementedError
 
@@ -32,6 +34,9 @@ class InputStream(object):
         except Exception:
             return None
         return frame
+
+    def stop(self):
+        self._stop_signal = True
 
     @property
     def stopped(self):

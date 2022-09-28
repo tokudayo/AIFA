@@ -13,7 +13,6 @@ class Cv2WebcamStream(InputStream):
         self.cap = cv2.VideoCapture(0)
         self.w = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         self.h = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        self._stop_signal = False
 
     def run(self):
         cap = self.cap
@@ -26,6 +25,3 @@ class Cv2WebcamStream(InputStream):
             except Exception:
                 pass
         self.cap.release()
-
-    def stop(self):
-        self._stop_signal = True
