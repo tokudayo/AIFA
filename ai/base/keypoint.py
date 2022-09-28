@@ -32,3 +32,7 @@ class KeyPoint(object):
     @property
     def avg_acceleration(self):
         return np.mean(self.pos[2:] - 2*self.pos[1:-1] + self.pos[:-2], axis=0)
+
+    @property
+    def displacement(self):
+        return self.pos[0] - self.pos[-1]

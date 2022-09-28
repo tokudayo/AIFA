@@ -13,7 +13,7 @@ class AIFlow(object):
         # self.input = Cv2VideoStream("sample.mp4")
         self.input = Cv2WebcamStream()
         # self.model = DummyHpeModel()
-        self.model = BlazePose()
+        self.model = BlazePose(complexity=1, static_mode=False)
         self.evaluator = ShoulderPress()
         self.exercise = None
 
@@ -36,9 +36,6 @@ class AIFlow(object):
             results = self.model.postprocess(keypoints.landmark)
 
             self.evaluator.update(results)
-            state = self.evaluator.state
-            if state != 'none':
-                print(self.evaluator.state)
 
             cv2.imshow("funny", drawn)
             if cv2.waitKey(1) == ord('q'):
