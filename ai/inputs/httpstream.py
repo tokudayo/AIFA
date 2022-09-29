@@ -11,13 +11,14 @@ class HTTPStream(InputStream):
     Process from HTTP stream, per-frame processing.
     '''
     def __init__(
-            self, 
-            url: str = 'http://192.168.1.1:8080/shot.jpg',
-            width: Optional[int] = 640, 
+            self,
+            url: str = 'http://192.168.1.51:8080/shot.jpg',
+            width: Optional[int] = 640,
             height: Optional[int] = 480,
             max_queue_size=5):
         '''
-        Assuming the HTTP stream is from an IP camera, which gives a JPEG image for each request.
+        Assuming the HTTP stream is from an IP camera, which gives a JPEG
+        image for each request.
         '''
         super().__init__(max_queue_size=max_queue_size)
         self.width, self.height = width, height
