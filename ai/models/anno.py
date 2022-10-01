@@ -18,6 +18,8 @@ coco_anno = {
     16: 'right_ankle',
 }
 
+coco_anno_list = list(coco_anno.values())
+
 blazepose_anno = {
     0: 'nose',
     1: 'left_eye_inner',
