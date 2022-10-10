@@ -47,6 +47,7 @@ class Vector(object):
         1v1 angle calculation between two matrices of vectors.
         This assumes the `other` Vector has the same number of vectors
         as `self`.
+        Returns a 1D array of angles.
         """
         return np.arccos((self.unit_v*other.unit_v).sum(axis=1))
 
