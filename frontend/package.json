@@ -33,7 +33,7 @@
     "websocket": "^1.0.34"
   },
   "scripts": {
-    "start": "cross-env PORT=13050 react-scripts start",
+    "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

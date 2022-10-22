@@ -3,6 +3,7 @@ import styles from "./Layout.module.css";
 import {
   UploadOutlined,
   UserOutlined,
+  CameraOutlined,
   VideoCameraOutlined,
 } from "@ant-design/icons";
 import { Layout as LayoutAnt, Menu } from "antd";
@@ -22,7 +23,9 @@ const Layout = () => {
           mode="inline"
           onClick={(e) => {
             if (e.key === "1") {
-              navigate("/");
+              navigate("/index");
+            } else if (e.key === "2") {
+              navigate("/index/camera");
             } else {
               navigate("/dmm");
             }
@@ -30,8 +33,12 @@ const Layout = () => {
           defaultSelectedKeys={["1"]}
           items={[
             {
+              icon: CameraOutlined,
+              label: "Webcam Streaming",
+            },
+            {
               icon: VideoCameraOutlined,
-              label: "Streaming",
+              label: "Camera Streaming",
             },
             {
               icon: UploadOutlined,
