@@ -7,7 +7,7 @@ from utils import Timer
 from ai.inputs import Cv2VideoStream, Cv2WebcamStream
 from ai.models import BlazePose
 from ai.exercises import ShoulderPress
-
+import numpy as np
 
 class AIFlow(object):
     def __init__(self):
@@ -35,9 +35,12 @@ class AIFlow(object):
                 continue
 
             results = self.model.postprocess(keypoints.landmark)
-
-            self.evaluator.update(Pose(results))
-
+            eval = (self.evaluator.update(Pose(results)))
+            # check if the list returned is empty
+            if eval:
+                print(eval)
+            # flip horizontally
+            drawn = cv2.flip(drawn, 1)
             cv2.imshow("funny", drawn)
             if cv2.waitKey(1) == ord('q'):
                 self.input.stop()

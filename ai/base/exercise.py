@@ -23,6 +23,8 @@ class BatchSamplingExercise(Exercise):
         super().__init__()
         self.window_size = window_size
         self.prev_state = None
+        self.last_fault = None
+        self.window = None
 
     def lastest_window(self):
         """
@@ -36,6 +38,7 @@ class BatchSamplingExercise(Exercise):
     def update(self, pose: Pose):
         super().update(pose)
         if len(self.series.data) % self.window_size == self.window_size - 1:
-            self.evaluation()
+            result = self.evaluation()
             self.prev_state = self.state
             self.prev_window = self.window
+            return result
