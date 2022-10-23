@@ -1,15 +1,17 @@
 import { Camera } from "@mediapipe/camera_utils";
 import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
 import { Pose, POSE_CONNECTIONS } from "@mediapipe/pose";
-import { Col, Row } from "antd";
+import { Button, Col, Row } from "antd";
 import { useCallback, useState } from "react";
 import { BaseSocket } from "../../socket/BaseSocket";
 
 const WebcamStreamCapture = () => {
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [camera, setCamera] = useState(undefined as any);
 
   const streamCamVideo = useCallback(() => {
+    setIsLoading(true);
     const videoElement: any = document.getElementsByClassName("input_video")[0];
     const canvasElement: any =
       document.getElementsByClassName("output_canvas")[0];
@@ -63,9 +65,12 @@ const WebcamStreamCapture = () => {
       );
 
       hiddenCanvasElement.toBlob((blob: Blob) => {
-        BaseSocket.getInstance().emitImageWebcam({ data: blob, date: Date.now() });
+        BaseSocket.getInstance().emitImageWebcam({
+          data: blob,
+          date: Date.now(),
+        });
       });
-      
+
       canvasCtx.globalCompositeOperation = "source-over";
       if (results.poseLandmarks) {
         drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {
@@ -76,7 +81,10 @@ const WebcamStreamCapture = () => {
           color: "#FF0000",
           lineWidth: 2,
         });
-        BaseSocket.getInstance().emitLandmarkWebcam({ data: results.poseLandmarks, date: Date.now() });
+        BaseSocket.getInstance().emitLandmarkWebcam({
+          data: results.poseLandmarks,
+          date: Date.now(),
+        });
       }
       canvasCtx.restore();
     }
@@ -105,6 +113,7 @@ const WebcamStreamCapture = () => {
     });
     cameraElem.start();
     setCamera(cameraElem);
+    setIsLoading(false);
     setIsStreaming(true);
   }, []);
 
@@ -133,9 +142,19 @@ const WebcamStreamCapture = () => {
           ></canvas>
         </Col>
       </Row>
-      {!isStreaming && <button onClick={streamCamVideo}>Start streaming</button>}
-      {isStreaming && <button onClick={stopStreaming}>Stop streaming</button>}
-  </>
+      <Row gutter={16} justify="center" align="middle" style={{ marginTop: "10px" }}>
+        {!isStreaming && (
+          <Button type="primary" onClick={streamCamVideo} loading={isLoading}>
+            Start streaming
+          </Button>
+        )}
+        {isStreaming && (
+          <Button type="primary" danger onClick={stopStreaming}>
+            Stop streaming
+          </Button>
+        )}
+      </Row>
+    </>
   );
 };
 

@@ -101,7 +101,7 @@ export class EventsGateway
     const fps = 10;
     function onPull(socket, buf) {
       if (buf) {
-        socket.emit('image', buf);
+        socket.to(`room ${room}`).emit('image', buf);
         appsink.pull(onPull.bind(null, socket));
       } else {
         console.log('NULL BUFFER');

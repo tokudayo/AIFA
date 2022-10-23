@@ -17,8 +17,6 @@ export class BaseSocket {
   }
 
   public connect(): void {
-    console.log("cvboicuvb", "Line #20 BaseSocket.ts");
-
     this.socket = io(process.env.REACT_APP_WS_HOST as string, {
       transports: ["websocket"],
     });
@@ -36,7 +34,9 @@ export class BaseSocket {
   }
 
   emitImageCamera(data: any): void {
-    this.socket.emit("image_camera", data);
+    if (process.env.REACT_APP_SAMPLE === 'true') {
+      this.socket.emit("image_camera", data);
+    }
   }
 
   emitLandmarkWebcam(data: any): void {
@@ -44,15 +44,16 @@ export class BaseSocket {
   }
 
   emitImageWebcam(data: any): void {
-    this.socket.emit("image_webcam", data);
+    if (process.env.REACT_APP_SAMPLE === 'true') {
+      this.socket.emit("image_webcam", data);
+    }
   }
 
   joinCameraRoom(): void {
-    console.log("cvboiu", "Line #62 BaseSocket.ts");
     this.socket.emit("join", { room: "camera" });
     this.socket.on("image", (data: any) => {
-      console.log("cvboiucvb", data, "Line #36 BaseSocket.ts");
-
+      console.log('image', 'Line #55 BaseSocket.ts');
+      
       eventBus.dispatch(SocketEvent.RECIEVED_IMAGE, data);
     });
   }

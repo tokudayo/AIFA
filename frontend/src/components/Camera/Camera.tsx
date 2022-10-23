@@ -1,6 +1,6 @@
 import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
 import { Pose, POSE_CONNECTIONS } from "@mediapipe/pose";
-import { Col, Row } from "antd";
+import { Button, Col, Row } from "antd";
 import { useCallback, useState } from "react";
 import eventBus from "../../event/event-bus";
 import { BaseSocket } from "../../socket/BaseSocket";
@@ -8,8 +8,10 @@ import { SocketEvent } from "../../socket/SocketEvent";
 
 const CameraStreamCapture = () => {
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const streamCamVideo = useCallback(() => {
+    setIsLoading(true);
     BaseSocket.getInstance().joinCameraRoom();
     const canvasElement: any =
       document.getElementsByClassName("output_canvas")[0];
@@ -91,6 +93,7 @@ const CameraStreamCapture = () => {
       blob = new Blob([arrayBuffer]);
       const img = new Image();
       img.onload = () => {
+        
         inputCanvasCtx.drawImage(
           img,
           0,
@@ -105,13 +108,14 @@ const CameraStreamCapture = () => {
       };
       img.src = URL.createObjectURL(blob);
     });
-
+    setIsLoading(false);
     setIsStreaming(true);
   }, []);
 
   const stopStreaming = useCallback(() => {
     BaseSocket.getInstance().leaveCameraRoom();
     setIsStreaming(false);
+    window.location.reload();
   }, []);
 
   return (
@@ -132,10 +136,18 @@ const CameraStreamCapture = () => {
           ></canvas>
         </Col>
       </Row>
-      {!isStreaming && (
-        <button onClick={streamCamVideo}>Start streaming</button>
-      )}
-      {isStreaming && <button onClick={stopStreaming}>Stop streaming</button>}
+      <Row gutter={16} justify="center" align="middle" style={{ marginTop: "10px" }}>
+        {!isStreaming && (
+          <Button type="primary" onClick={streamCamVideo} loading={isLoading}>
+            Start streaming
+          </Button>
+        )}
+        {isStreaming && (
+          <Button type="primary" danger onClick={stopStreaming}>
+            Stop streaming
+          </Button>
+        )}
+      </Row>
     </>
   );
 };
