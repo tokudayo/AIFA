@@ -1,22 +1,16 @@
 import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
 import { Pose, POSE_CONNECTIONS } from "@mediapipe/pose";
 import { Col, Row } from "antd";
-import { useCallback, useEffect, useState } from "react";
-import io from "socket.io-client";
-
-const socket = io(process.env.REACT_APP_WS_HOST as string);
+import { useCallback, useState } from "react";
+import eventBus from "../../event/event-bus";
+import { BaseSocket } from "../../socket/BaseSocket";
+import { SocketEvent } from "../../socket/SocketEvent";
 
 const CameraStreamCapture = () => {
   const [isStreaming, setIsStreaming] = useState(false);
 
-  useEffect(() => {
-    return () => {
-      socket.off("connect");
-    };
-  }, []);
-
   const streamCamVideo = useCallback(() => {
-    socket.emit("join", { room: "camera" });
+    BaseSocket.getInstance().joinCameraRoom();
     const canvasElement: any =
       document.getElementsByClassName("output_canvas")[0];
     const canvasCtx: any = canvasElement.getContext("2d");
@@ -71,7 +65,7 @@ const CameraStreamCapture = () => {
           color: "#FF0000",
           lineWidth: 2,
         });
-        socket.emit("landmark_camera", { data: results.poseLandmarks, date: Date.now() });
+        BaseSocket.getInstance().emitLandmarkCamera({ data: results.poseLandmarks, date: Date.now() });
       }
       canvasCtx.restore();
     }
@@ -93,7 +87,7 @@ const CameraStreamCapture = () => {
 
     let blob: Blob;
 
-    socket.on("image", async function (arrayBuffer) {
+    eventBus.on(SocketEvent.RECIEVED_IMAGE, async (arrayBuffer: any) => {
       blob = new Blob([arrayBuffer]);
       const img = new Image();
       img.onload = () => {
@@ -105,7 +99,7 @@ const CameraStreamCapture = () => {
           inputCanvasElement.height
         );
         inputCanvasElement.toBlob((blob: Blob) => {
-          socket.emit("image_camera", { data: blob, date: Date.now() });
+          BaseSocket.getInstance().emitImageCamera({ data: blob, date: Date.now() });
         });
         pose.send({ image: inputCanvasElement });
       };
@@ -116,7 +110,7 @@ const CameraStreamCapture = () => {
   }, []);
 
   const stopStreaming = useCallback(() => {
-    socket.emit("leave", { room: "camera" });
+    BaseSocket.getInstance().leaveCameraRoom();
     setIsStreaming(false);
   }, []);
 

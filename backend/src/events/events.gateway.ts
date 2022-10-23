@@ -88,6 +88,7 @@ export class EventsGateway
   handleConnection(client: Socket) {
     console.log(`Client connected: ${client.id}`);
     client.on('join', (data) => {
+      console.log('socket join camera room', 'Line #91 events.gateway.ts');
       client.join(`room ${data.room}`);
     });
     client.on('leave', (data) => {
@@ -96,13 +97,11 @@ export class EventsGateway
   }
 
   async onModuleInit() {
-    this.server.emit('message', JSON.stringify(['Untranslatable']));
-
     const room = 'camera';
     const fps = 10;
     function onPull(socket, buf) {
       if (buf) {
-        socket.to(`room ${room}`).emit('image', buf);
+        socket.emit('image', buf);
         appsink.pull(onPull.bind(null, socket));
       } else {
         console.log('NULL BUFFER');
@@ -111,7 +110,7 @@ export class EventsGateway
     }
 
     const pipeline = new gstreamer.Pipeline(
-      `rtspsrc location=rtsp://${process.env.RTSP_USER}:${process.env.RTSP_PASSWORD}@192.168.1.110:554/Streaming/Channels/101 latency=100 ! queue ! rtph264depay ! h264parse ! avdec_h264 ! videoconvert ! video/x-raw,framerate=${fps}/1 ! pngenc ! appsink name=sink`,
+      `rtspsrc location=${process.env.RTSP_URL} ! queue ! rtph264depay ! h264parse ! avdec_h264 ! videoconvert ! video/x-raw,framerate=${fps}/1 ! jpegenc quality=50 ! appsink name=sink`,
     );
     const appsink = pipeline.findChild('sink');
 

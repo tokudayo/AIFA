@@ -2,20 +2,12 @@ import { Camera } from "@mediapipe/camera_utils";
 import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
 import { Pose, POSE_CONNECTIONS } from "@mediapipe/pose";
 import { Col, Row } from "antd";
-import { useCallback, useEffect, useState } from "react";
-import io from "socket.io-client";
-
-const socket = io(process.env.REACT_APP_WS_HOST as string);
+import { useCallback, useState } from "react";
+import { BaseSocket } from "../../socket/BaseSocket";
 
 const WebcamStreamCapture = () => {
   const [isStreaming, setIsStreaming] = useState(false);
   const [camera, setCamera] = useState(undefined as any);
-
-  useEffect(() => {
-    return () => {
-      socket.off("connect");
-    };
-  }, []);
 
   const streamCamVideo = useCallback(() => {
     const videoElement: any = document.getElementsByClassName("input_video")[0];
@@ -71,7 +63,7 @@ const WebcamStreamCapture = () => {
       );
 
       hiddenCanvasElement.toBlob((blob: Blob) => {
-        socket.emit("image_webcam", { data: blob, date: Date.now() });
+        BaseSocket.getInstance().emitImageWebcam({ data: blob, date: Date.now() });
       });
       
       canvasCtx.globalCompositeOperation = "source-over";
@@ -84,7 +76,7 @@ const WebcamStreamCapture = () => {
           color: "#FF0000",
           lineWidth: 2,
         });
-        socket.emit('landmark_webcam', { data: results.poseLandmarks, date: Date.now() });
+        BaseSocket.getInstance().emitLandmarkWebcam({ data: results.poseLandmarks, date: Date.now() });
       }
       canvasCtx.restore();
     }
