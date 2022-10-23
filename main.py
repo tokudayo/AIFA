@@ -1,6 +1,7 @@
 from threading import Thread
 
 import cv2
+from ai.base.pose import Pose
 
 from utils import Timer
 from ai.inputs import Cv2VideoStream, Cv2WebcamStream
@@ -35,7 +36,7 @@ class AIFlow(object):
 
             results = self.model.postprocess(keypoints.landmark)
 
-            self.evaluator.update(results)
+            self.evaluator.update(Pose(results))
 
             cv2.imshow("funny", drawn)
             if cv2.waitKey(1) == ord('q'):
