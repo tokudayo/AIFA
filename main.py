@@ -1,11 +1,12 @@
 from threading import Thread
 
 import cv2
+from ai.base.pose import Pose
 
 from utils import Timer
 from ai.inputs import Cv2VideoStream, Cv2WebcamStream
 from ai.models import BlazePose
-from ai.exercises import ShoulderPress
+from ai.base.exercise import ShoulderPress
 
 
 class AIFlow(object):
@@ -34,6 +35,8 @@ class AIFlow(object):
                 continue
 
             results = self.model.postprocess(keypoints.landmark)
+
+            results = Pose(results)
 
             self.evaluator.update(results)
 
