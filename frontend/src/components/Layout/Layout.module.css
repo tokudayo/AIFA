@@ -1,0 +1,17 @@
+.logo {
+  height: 100px;
+  width: 100px;
+  background-image: url("../../assets/logo.png");
+  background-size: cover;
+}
+
+.site-layout-sub-header-background {
+  background: #fff;
+}
+
+.site-layout-background {
+  background: #fff;
+}
+[data-theme="dark"] .site-layout-sub-header-background {
+  background: #141414;
+}

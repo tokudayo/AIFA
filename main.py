@@ -36,9 +36,7 @@ class AIFlow(object):
 
             results = self.model.postprocess(keypoints.landmark)
 
-            results = Pose(results)
-
-            self.evaluator.update(results)
+            self.evaluator.update(Pose(results))
 
             cv2.imshow("funny", drawn)
             if cv2.waitKey(1) == ord('q'):

@@ -1,0 +1,27 @@
+.background {
+  background-image: url("../../assets/background-home.jpg");
+  height: calc(100vh);
+  font-size: 50px;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.button {
+  border: 0;
+  padding: 20px 32px;
+  text-align: center;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  color: #fff;
+  background: #6821da;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 16px;
+  line-height: 20px;
+  transition: background .3s ease-in-out;
+}
+
+.button:hover {
+  background: #9740ff
+}

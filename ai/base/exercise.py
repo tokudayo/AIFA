@@ -1,43 +1,13 @@
-from queue import Queue
-from typing import List, Tuple
-
-from ai.base import KeyPoint, Vector
-from ai.models.anno import coco_anno as kps_anno
+from ai.base.pose import Pose, PoseSeries
 
 
 class Exercise():
-    def __init__(self,
-                 memory: int = 30,
-                 window_size: int = 10,
-                 msg_queue_size: int = 10):
-        self.kps = {}
-        self.window_size = window_size
-        self._count = window_size
-        self.window = []
-        self.prev_window = []
-        self.prev_state = None
-        self.msg_queue = Queue(maxsize=msg_queue_size)
-        for name in kps_anno.values():
-            self.kps[name] = KeyPoint(name, memory)
+    def __init__(self):
+        self.series = PoseSeries()
 
-    def update(self, kps: List[Tuple[float, float, float]]):
+    def update(self, pose: Pose):
         """Pass normalized keypoints info in and update internal state"""
-        if self._count == self.window_size:
-            # Evaluate
-            self.evaluation()
-            # Reset
-            self.prev_window = self.window
-            self.prev_state = self.state
-            for name in kps_anno.values():
-                self.kps[name] = KeyPoint(name, self.window_size - 1)
-            self._count = 1
-
-        for i, kp in enumerate(kps):
-            self.kps[kps_anno[i]].update(*kp[:3])
-        self._count += 1
-
-    def joint_vector(self, name1: str, name2: str):
-        return Vector(self.kps[name1], self.kps[name2])
+        self.series.update(pose)
 
     def evaluation(self):
         """Evaluate current state. Emits messages to the queue if needed."""
@@ -46,3 +16,26 @@ class Exercise():
     @property
     def state(self):
         raise NotImplementedError
+
+
+class BatchSamplingExercise(Exercise):
+    def __init__(self, window_size: int = 10,):
+        super().__init__()
+        self.window_size = window_size
+        self.prev_state = None
+
+    def lastest_window(self):
+        """
+        NOTE: Not the actual latest 'window'.
+        Maybe we will come back to this later
+        """
+        return PoseSeries(
+            self.series.data[-self.window_size:]
+        )
+
+    def update(self, pose: Pose):
+        super().update(pose)
+        if len(self.series.data) % self.window_size == self.window_size - 1:
+            self.evaluation()
+            self.prev_state = self.state
+            self.prev_window = self.window
