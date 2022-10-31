@@ -36,9 +36,7 @@ public class MainActivity extends com.google.mediapipe.apps.basic.MainActivity {
   {
     try {
       mSocket = IO.socket("http://192.168.1.214:13051");
-      Log.e(TAG, "Success to init socket.");
     } catch (URISyntaxException e) {
-      Log.e(TAG, "Failed to init socket.", e);
     }
   }
 
@@ -47,39 +45,27 @@ public class MainActivity extends com.google.mediapipe.apps.basic.MainActivity {
     super.onCreate(savedInstanceState);
     mSocket.connect();
 
-    // To show verbose logging, run:
-    // adb shell setprop log.tag.MainActivity VERBOSE
-    if (Log.isLoggable(TAG, Log.VERBOSE)) {
-      processor.addPacketCallback(
-          "throttled_input_video_cpu",
-          (packet) -> {
-            Log.v(TAG, "Received image with ts: ");
-            Bitmap image = AndroidPacketGetter.getBitmapFromRgba(packet);
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            image.compress(Bitmap.CompressFormat.PNG, 100, stream);
-            byte[] byteArray = stream.toByteArray();
-            mSocket.emit("image_mobile", byteArray, System.currentTimeMillis());
-            image.recycle();
-          });
-      processor.addPacketCallback(
-          OUTPUT_LANDMARKS_STREAM_NAME,
-          (packet) -> {
-            Log.v(TAG, "Received pose landmarks packet.");
-            try {
-              byte[] landmarksRaw = PacketGetter.getProtoBytes(packet);
-              NormalizedLandmarkList poseLandmarks = NormalizedLandmarkList.parseFrom(landmarksRaw);
-              Log.v(
-                  TAG,
-                  "[TS:"
-                      + packet.getTimestamp()
-                      + "] "
-                      + getPoseLandmarksDebugString(poseLandmarks));
-              mSocket.emit("landmark_mobile", getPoseLandmarksDebugString(poseLandmarks), System.currentTimeMillis());
-            } catch (InvalidProtocolBufferException exception) {
-              Log.e(TAG, "Failed to get proto.", exception);
-            }
-          });
-    }
+    // processor.addPacketCallback(
+    //     "throttled_input_video_cpu",
+    //     (packet) -> {
+    //       Bitmap image = AndroidPacketGetter.getBitmapFromRgba(packet);
+    //       ByteArrayOutputStream stream = new ByteArrayOutputStream();
+    //       image.compress(Bitmap.CompressFormat.PNG, 100, stream);
+    //       byte[] byteArray = stream.toByteArray();
+    //       mSocket.emit("image_mobile", byteArray, System.currentTimeMillis());
+    //       image.recycle();
+    //     });
+
+    processor.addPacketCallback(
+        OUTPUT_LANDMARKS_STREAM_NAME,
+        (packet) -> {
+          try {
+            byte[] landmarksRaw = PacketGetter.getProtoBytes(packet);
+            NormalizedLandmarkList poseLandmarks = NormalizedLandmarkList.parseFrom(landmarksRaw);
+            mSocket.emit("landmark_mobile", getPoseLandmarksDebugString(poseLandmarks), System.currentTimeMillis());
+          } catch (InvalidProtocolBufferException exception) {
+          }
+        });
   }
 
   private static String getPoseLandmarksDebugString(NormalizedLandmarkList poseLandmarks) {

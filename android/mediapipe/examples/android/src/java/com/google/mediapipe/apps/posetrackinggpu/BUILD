@@ -44,7 +44,7 @@ android_binary(
     manifest = "//mediapipe/examples/android/src/java/com/google/mediapipe/apps/basic:AndroidManifest.xml",
     manifest_values = {
         "applicationId": "com.google.mediapipe.apps.posetrackinggpu",
-        "appName": "Pose Tracking",
+        "appName": "AIFA",
         "mainActivity": ".MainActivity",
         "cameraFacingFront": "True",
         "binaryGraphName": "pose_tracking_gpu.binarypb",

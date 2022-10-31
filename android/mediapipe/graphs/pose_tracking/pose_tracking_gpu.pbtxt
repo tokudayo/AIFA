@@ -62,8 +62,8 @@ node {
   output_stream: "IMAGE:output_video"
 }
 
-node {
-   calculator: "GpuBufferToImageFrameCalculator"
-   input_stream: "throttled_input_video"
-   output_stream: "throttled_input_video_cpu"
- }
+# node {
+#   calculator: "GpuBufferToImageFrameCalculator"
+#   input_stream: "throttled_input_video"
+#   output_stream: "throttled_input_video_cpu"
+# }
