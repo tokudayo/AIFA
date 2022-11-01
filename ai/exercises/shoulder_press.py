@@ -2,23 +2,11 @@ import math
 from typing import Optional
 
 from ai.base.exercise import BatchSamplingExercise
-from ai.base.vector import Vector, xaxis, zaxis
+from ai.base.vector import Vector, xaxis, yaxis, zaxis
 from ai.exercises.utils import deg_to_rad, rad_to_deg
 from queue import Queue
-
-def check_perpendicular_limb(window, target: Optional['Vector'] = xaxis, limb = "wrist_elbow", side = "left", allowed_error=0.26):
-    if limb == "wrist_elbow":
-        if side == "left":
-            limb = window.joint_vector_series('left_wrist', 'left_elbow')
-        elif side == "right":
-            limb = window.joint_vector_series('right_wrist', 'right_elbow')
-
-    if limb == "elbow_shoulder":
-        if side == "left":
-            limb = window.joint_vector_series('left_elbow', 'left_shoulder')
-        elif side == "right":
-            limb = window.joint_vector_series('right_elbow', 'right_shoulder')
-    
+import numpy as np
+def check_perpendicular_limb(limb: Vector, target: Optional['Vector'] = xaxis, allowed_error=0.26):
     if target is None:
         limb_xaxis_angle = limb.pairwise_angle(xaxis)
     else:
@@ -38,7 +26,7 @@ class ShoulderPress(BatchSamplingExercise):
         """
         Evaluate current state. Emits messages if fault is detected. User must fix the fault first before the next evaluation.
         Rules for this exercise:
-        1. Keep the wrist to elbow part perpendicular to the ground while moving
+        1. Keep the wrist to elbow part
         2. Hand must be straight when extended at the top
         3. Keep the elbow to shoulder part to the side of the body, only slightly to the front when at ready-to-lift position
         3. Keep body straight. (TBI)
@@ -48,44 +36,72 @@ class ShoulderPress(BatchSamplingExercise):
         allowed_error = deg_to_rad(15)
         msg_list = []
         if verbose: print(f"STATE: {state}, LAST FAULT: {self.last_fault}")
+
+        # check if body is straight
+        left_upright = window.joint_vector_series('left_shoulder', 'left_hip')
+        right_upright = window.joint_vector_series('right_shoulder', 'right_hip')
+        if not check_perpendicular_limb(left_upright, xaxis, allowed_error=allowed_error):
+            msg_list.append("Keep your left side straight")
+        if not check_perpendicular_limb(right_upright, xaxis, allowed_error=allowed_error):
+            msg_list.append("Keep your right side straight")
+        
         # When moving
         if state == self.prev_state and state in ['up', 'down'] or self.last_fault is None:
             # Keep the wrist to elbow part perpendicular to the ground while moving
-            if not check_perpendicular_limb(window, limb = "wrist_elbow", side = "left", allowed_error=allowed_error):
+            la_arm = window.joint_vector_series('left_wrist', 'left_elbow')
+            ra_arm = window.joint_vector_series('right_wrist', 'right_elbow')
+            if not check_perpendicular_limb(limb = la_arm, allowed_error=allowed_error):
                 msg_list.append("Upper left arm must be straight.")
-            if not check_perpendicular_limb(window, limb = "wrist_elbow", side = "right", allowed_error=allowed_error):
+            if not check_perpendicular_limb(limb = ra_arm, allowed_error=allowed_error):
                 msg_list.append("Upper right arm must be straight.")
 
         # When at the top
-        if state != self.prev_state and self.prev_state == 'up' or self.last_fault == "top":
-            if self.last_fault != "top" and verbose: print("At the top.")
+        if state != self.prev_state and self.prev_state == 'up' and state in ['up','static'] or self.last_fault == "top":
+            #if self.last_fault != "top" and verbose: print("At the top.")
+            lb_arm =  window.joint_vector_series('left_elbow', 'left_shoulder')
+            rb_arm =  window.joint_vector_series('right_elbow', 'right_shoulder')
             # Keep the elbow to shoulder part to the side, but slightly to the front
-            if not check_perpendicular_limb(window, limb = "elbow_shoulder", side = "left", allowed_error=allowed_error):
+            if not check_perpendicular_limb(limb = lb_arm, allowed_error=allowed_error):
                 msg_list.append("Extend your left arm fully at the top.")
                 self.last_fault = 'top'
-            elif not check_perpendicular_limb(window, limb = "elbow_shoulder", side = "right", allowed_error=allowed_error):
+            elif not check_perpendicular_limb(limb = rb_arm, allowed_error=allowed_error):
                 msg_list.append("Extend your right arm fully at the top.")
                 self.last_fault = 'top'
             else:
                 self.last_fault = None
                 
         # When at the bottom
-        elif state != self.prev_state and self.prev_state == 'down':
-            if verbose: print("At the bottom.")
+        if state != self.prev_state and self.prev_state == 'down' and state in ['down','static'] or self.last_fault == "bottom":
+            #if verbose: print("At the bottom.")
         # Keep the elbow to shoulder part to the side, only slightly to the front
-        # TBI
+            lb_arm =  window.joint_vector_series('left_elbow', 'left_shoulder')
+            rb_arm =  window.joint_vector_series('right_elbow', 'right_shoulder')
+            if not check_perpendicular_limb(limb = lb_arm, target = yaxis, allowed_error=allowed_error):
+                msg_list.append("Keep your left arm to the side.")
+                self.last_fault = 'bottom'
+            if not check_perpendicular_limb(limb = rb_arm, target = yaxis, allowed_error=allowed_error):
+                msg_list.append("Keep your right arm to the side.")
+                self.last_fault = 'bottom'
         return msg_list
 
     @property
     def state(self):
         window = self.lastest_window()
-        lw_series = window.kp_series('left_wrist')
-        rw_series = window.kp_series('right_wrist')
-        # detect the state
-        if lw_series.displacement[0][1] < -0.05:
+        # Distance from hip to shoulder
+        h = (window.joint_vector_series('left_shoulder', 'left_hip').magnitude + window.joint_vector_series('right_shoulder', 'right_hip').magnitude) / 2
+        h = np.sum(h) / h.shape
+        k = 0.01
+        # Suppose arm is from wrist to elbow
+        la_arm = window.joint_vector_series('left_wrist', 'left_elbow')
+        ra_arm = window.joint_vector_series('right_wrist', 'right_elbow')
+        
+
+        # find if both arm moved up or down
+        if (la_arm.data[-1] - la_arm.data[0])[1] > k * h and (ra_arm.data[-1] - ra_arm.data[0])[1] > k * h:
             return 'up'
-        elif lw_series.displacement[0][1] > 0.05:
+        elif (la_arm.data[-1] - la_arm.data[0])[1] < -k * h and (ra_arm.data[-1] - ra_arm.data[0])[1] < -k * h:
             return 'down'
         else:
-            return 'none'
+            return 'static'
+        
         
