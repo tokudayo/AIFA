@@ -1,18 +1,16 @@
 import math
 from typing import Optional
+import numpy as np
 
 from ai.base.exercise import BatchSamplingExercise
-from ai.base.vector import Vector, xaxis, yaxis, zaxis
-from ai.exercises.utils import deg_to_rad, rad_to_deg
-from queue import Queue
-import numpy as np
-def check_perpendicular_limb(limb: Vector, target: Optional['Vector'] = xaxis, allowed_error=0.26):
-    if target is None:
-        limb_xaxis_angle = limb.pairwise_angle(xaxis)
-    else:
-        limb_xaxis_angle = limb.pairwise_angle(target)
+from ai.base.vector import Vector, xaxis, yaxis
+from ai.exercises.utils import deg_to_rad
 
-    if abs(limb_xaxis_angle.max() - math.pi/2) > allowed_error:
+
+def check_perpendicular_limb(limb: Vector, target: Optional['Vector'] = xaxis, allowed_error=15):
+    allowed_error = deg_to_rad(allowed_error)
+    limb_xaxis_angle = limb.pairwise_angle(target)
+    if abs(limb_xaxis_angle.mean() - math.pi/2) > allowed_error:
         return False
     else:
         return True
@@ -22,7 +20,7 @@ class ShoulderPress(BatchSamplingExercise):
     def __init__(self, window_size: int = 10,):
         super().__init__(window_size)
 
-    def evaluation(self, verbose=True):
+    def evaluation(self, verbose=True, allowed_error: float = 15.):
         """
         Evaluate current state. Emits messages if fault is detected. User must fix the fault first before the next evaluation.
         Rules for this exercise:
@@ -33,7 +31,6 @@ class ShoulderPress(BatchSamplingExercise):
         """
         state = self.state
         window = self.lastest_window()
-        allowed_error = deg_to_rad(15)
         msg_list = []
         if verbose: print(f"STATE: {state}, LAST FAULT: {self.last_fault}")
 
@@ -45,18 +42,16 @@ class ShoulderPress(BatchSamplingExercise):
         if not check_perpendicular_limb(right_upright, xaxis, allowed_error=allowed_error):
             msg_list.append("Keep your right side straight")
         
-        # When moving
-        if state == self.prev_state and state in ['up', 'down'] or self.last_fault is None:
-            # Keep the wrist to elbow part perpendicular to the ground while moving
-            la_arm = window.joint_vector_series('left_wrist', 'left_elbow')
-            ra_arm = window.joint_vector_series('right_wrist', 'right_elbow')
-            if not check_perpendicular_limb(limb = la_arm, allowed_error=allowed_error):
-                msg_list.append("Upper left arm must be straight.")
-            if not check_perpendicular_limb(limb = ra_arm, allowed_error=allowed_error):
-                msg_list.append("Upper right arm must be straight.")
+        # Keep the wrist to elbow part perpendicular to the ground at all times
+        la_arm = window.joint_vector_series('left_wrist', 'left_elbow')
+        ra_arm = window.joint_vector_series('right_wrist', 'right_elbow')
+        if not check_perpendicular_limb(limb = la_arm, allowed_error=allowed_error):
+            msg_list.append("Upper left arm must be straight.")
+        if not check_perpendicular_limb(limb = ra_arm, allowed_error=allowed_error):
+            msg_list.append("Upper right arm must be straight.")
 
         # When at the top
-        if state != self.prev_state and self.prev_state == 'up' and state in ['up','static'] or self.last_fault == "top":
+        if state != self.prev_state and self.prev_state == 'up':
             #if self.last_fault != "top" and verbose: print("At the top.")
             lb_arm =  window.joint_vector_series('left_elbow', 'left_shoulder')
             rb_arm =  window.joint_vector_series('right_elbow', 'right_shoulder')
@@ -71,7 +66,7 @@ class ShoulderPress(BatchSamplingExercise):
                 self.last_fault = None
                 
         # When at the bottom
-        if state != self.prev_state and self.prev_state == 'down' and state in ['down','static'] or self.last_fault == "bottom":
+        if state != self.prev_state and self.prev_state == 'down':
             #if verbose: print("At the bottom.")
         # Keep the elbow to shoulder part to the side, only slightly to the front
             lb_arm =  window.joint_vector_series('left_elbow', 'left_shoulder')
@@ -90,18 +85,28 @@ class ShoulderPress(BatchSamplingExercise):
         # Distance from hip to shoulder
         h = (window.joint_vector_series('left_shoulder', 'left_hip').magnitude + window.joint_vector_series('right_shoulder', 'right_hip').magnitude) / 2
         h = np.sum(h) / h.shape
-        k = 0.01
+        k = 0.1
         # Suppose arm is from wrist to elbow
-        la_arm = window.joint_vector_series('left_wrist', 'left_elbow')
-        ra_arm = window.joint_vector_series('right_wrist', 'right_elbow')
+        # la_arm = window.joint_vector_series('left_wrist', 'left_elbow')
+        # ra_arm = window.joint_vector_series('right_wrist', 'right_elbow')
         
 
-        # find if both arm moved up or down
-        if (la_arm.data[-1] - la_arm.data[0])[1] > k * h and (ra_arm.data[-1] - ra_arm.data[0])[1] > k * h:
+        # # find if both arm moved up or down
+        # if (la_arm.data[-1] - la_arm.data[0])[1] > k * h and (ra_arm.data[-1] - ra_arm.data[0])[1] > k * h:
+        #     return 'up'
+        # elif (la_arm.data[-1] - la_arm.data[0])[1] < -k * h and (ra_arm.data[-1] - ra_arm.data[0])[1] < -k * h:
+        #     return 'down'
+        # else:
+        #     return 'static'
+
+        kps = window.kp_series('left_wrist', 'right_wrist', 'left_elbow', 'right_elbow').data
+        displacement = (kps[-1] - kps[0]).mean(axis=0)[1]
+        if displacement < -k * h:
             return 'up'
-        elif (la_arm.data[-1] - la_arm.data[0])[1] < -k * h and (ra_arm.data[-1] - ra_arm.data[0])[1] < -k * h:
+        elif displacement > k * h:
             return 'down'
         else:
             return 'static'
+        
         
         
