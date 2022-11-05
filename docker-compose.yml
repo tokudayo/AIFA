@@ -1,18 +1,26 @@
-version: '3'
+version: "3"
 services:
   db:
     image: postgres
     restart: always
     environment:
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
+      PGDATA: /data/postgres
     ports:
       - 13075:5432
+    volumes:
+      - postgres:/data/postgres
   backend:
     build: backend
     env_file: backend/.env
     environment:
-      DB_USER: db
+      DB_TYPE: postgres
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USERNAME: postgres
       DB_PASSWORD: password
+      DB_DATABASE: postgres
       PORT: 3000
     command: yarn start
     volumes:
@@ -38,3 +46,5 @@ services:
     depends_on:
       - backend
 
+volumes:
+  postgres:
