@@ -1,21 +1,38 @@
 import "antd/dist/antd.min.css";
 import styles from "./Layout.module.css";
-import { CameraOutlined, VideoCameraOutlined } from "@ant-design/icons";
+import {
+  CameraOutlined,
+  LogoutOutlined,
+  VideoCameraOutlined,
+} from "@ant-design/icons";
 import { Layout as LayoutAnt, Menu } from "antd";
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../../store/auth/actions";
+import { RootState } from "../../store/reducers";
 const { Header, Content, Footer, Sider } = LayoutAnt;
 
 const Layout = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
+  const { user } = useSelector((state: RootState) => state.AuthReducer);
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
 
   return (
     <LayoutAnt style={{ height: "100vh" }}>
       <Sider breakpoint="lg" collapsedWidth="0">
         <div style={{ padding: "16px" }}>
           <div className={styles.logo} />
-          <p style={{ color: "white", marginTop: "10px" }}>AIFA - Realtime posture correction</p>
+          <p style={{ color: "white", marginTop: "10px" }}>
+            AIFA - Realtime posture correction
+          </p>
         </div>
         <Menu
           theme="dark"
@@ -25,6 +42,8 @@ const Layout = () => {
               navigate("/index");
             } else if (e.key === "2") {
               navigate("/index/camera");
+            } else if (e.key === "3") {
+              dispatch(logout());
             }
           }}
           defaultSelectedKeys={["1"]}
@@ -37,6 +56,10 @@ const Layout = () => {
             {
               icon: VideoCameraOutlined,
               label: "Camera Streaming",
+            },
+            {
+              icon: LogoutOutlined,
+              label: "Logout",
             },
           ].map((item, index) => ({
             key: String(index + 1),
