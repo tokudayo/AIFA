@@ -1,0 +1,40 @@
+version: '3'
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: password
+    ports:
+      - 13075:5432
+  backend:
+    build: backend
+    env_file: backend/.env
+    environment:
+      DB_USER: db
+      DB_PASSWORD: password
+      PORT: 3000
+    command: yarn start
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    ports:
+      - 13076:3000
+    depends_on:
+      - db
+  frontend:
+    build: frontend
+    env_file: frontend/.env
+    environment:
+      REACT_APP_WS_HOST: ws://localhost:13076
+      PORT: 3000
+    command: yarn start
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    ports:
+      - 13077:3000
+    depends_on:
+      - backend
+
