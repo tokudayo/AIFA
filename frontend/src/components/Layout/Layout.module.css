@@ -1,6 +1,6 @@
 .logo {
-  height: 32px;
-  margin: 16px;
+  height: 100px;
+  width: 100px;
   background-image: url("../../assets/logo.png");
   background-size: cover;
 }

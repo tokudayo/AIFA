@@ -1,43 +1,66 @@
 import "antd/dist/antd.min.css";
 import styles from "./Layout.module.css";
 import {
-  UploadOutlined,
-  UserOutlined,
+  CameraOutlined,
+  LogoutOutlined,
   VideoCameraOutlined,
 } from "@ant-design/icons";
 import { Layout as LayoutAnt, Menu } from "antd";
-import React from "react";
-import { useNavigate, Outlet } from "react-router-dom";
+import React, { useEffect } from "react";
+import { useNavigate, Outlet, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../../store/auth/actions";
+import { RootState } from "../../store/reducers";
 const { Header, Content, Footer, Sider } = LayoutAnt;
 
 const Layout = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useDispatch();
+  const { user } = useSelector((state: RootState) => state.AuthReducer);
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
 
   return (
     <LayoutAnt style={{ height: "100vh" }}>
       <Sider breakpoint="lg" collapsedWidth="0">
-        <div className={styles.logo} style={{ marginBottom: '50px', marginTop: '20px' }} />
+        <div style={{ padding: "16px" }}>
+          <div className={styles.logo} />
+          <p style={{ color: "white", marginTop: "10px" }}>
+            AIFA - Realtime posture correction
+          </p>
+        </div>
         <Menu
           theme="dark"
           mode="inline"
           onClick={(e) => {
             if (e.key === "1") {
-              navigate("/");
-            } else {
-              navigate("/dmm");
+              navigate("/index");
+            } else if (e.key === "2") {
+              navigate("/index/camera");
+            } else if (e.key === "3") {
+              dispatch(logout());
             }
           }}
           defaultSelectedKeys={["1"]}
+          selectedKeys={[location.pathname.includes("camera") ? "2" : "1"]}
           items={[
             {
-              icon: VideoCameraOutlined,
-              label: "Streaming",
+              icon: CameraOutlined,
+              label: "Webcam Streaming",
             },
             {
-              icon: UploadOutlined,
-              label: "Upload Image",
+              icon: VideoCameraOutlined,
+              label: "Camera Streaming",
             },
-            { icon: UserOutlined, label: "User Information" },
+            {
+              icon: LogoutOutlined,
+              label: "Logout",
+            },
           ].map((item, index) => ({
             key: String(index + 1),
             icon: React.createElement(item.icon),
