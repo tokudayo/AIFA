@@ -1,5 +1,5 @@
 from ai.base.pose import Pose, PoseSeries
-
+from ai.experimental.state import StateSeries
 
 class Exercise():
     def __init__(self):
@@ -19,10 +19,15 @@ class Exercise():
 
 
 class BatchSamplingExercise(Exercise):
-    def __init__(self, window_size: int = 10,):
+    def __init__(self, window_size: int = 10, state_series_length: int = 5,):
         super().__init__()
         self.window_size = window_size
         self.prev_state = None
+        self.stateSeries = StateSeries(length = state_series_length)
+        self.direction = 'static'
+        self.prev_direction = 'static'
+        self.last_fault = None
+        self.window = None
 
     def lastest_window(self):
         """
@@ -36,6 +41,10 @@ class BatchSamplingExercise(Exercise):
     def update(self, pose: Pose):
         super().update(pose)
         if len(self.series.data) % self.window_size == self.window_size - 1:
-            self.evaluation()
+            result = self.evaluation()
             self.prev_state = self.state
+            # Experimental
+            self.prev_direction = self.stateSeries.max()
+            self.stateSeries.update(self.state)
             self.prev_window = self.window
+            return result
