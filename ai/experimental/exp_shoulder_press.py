@@ -28,11 +28,13 @@ class ShoulderPress(BatchSamplingExercise):
         2. Hand must be straight when extended at the top
         3. Keep the elbow to shoulder part to the side of the body, only slightly to the front when at ready-to-lift position
         3. Keep body straight. (TBI)
-        """
-        state = self.state
+        """        
+        state_series = self.stateSeries
+        direction = self.stateSeries.max()
+        print(state_series.data, end='  -->  ')
         window = self.lastest_window()
         msg_list = []
-        if verbose: print(f"STATE: {state}, LAST FAULT: {self.last_fault}")
+        if verbose: print(f"STATE: {direction}, LAST FAULT: {self.last_fault}")
 
         # check if body is straight
         left_upright = window.joint_vector_series('left_shoulder', 'left_hip')
@@ -51,7 +53,7 @@ class ShoulderPress(BatchSamplingExercise):
             msg_list.append("Upper right arm must be straight.")
 
         # When at the top
-        if state != self.prev_state and self.prev_state == 'up':
+        if self.prev_direction == 'up' and direction == 'static':
             #if self.last_fault != "top" and verbose: print("At the top.")
             lb_arm =  window.joint_vector_series('left_elbow', 'left_shoulder')
             rb_arm =  window.joint_vector_series('right_elbow', 'right_shoulder')
@@ -66,7 +68,7 @@ class ShoulderPress(BatchSamplingExercise):
                 self.last_fault = None
                 
         # When at the bottom
-        if state != self.prev_state and self.prev_state == 'down':
+        if self.prev_direction == 'down' and direction == 'static':
             #if verbose: print("At the bottom.")
         # Keep the elbow to shoulder part to the side, only slightly to the front
             lb_arm =  window.joint_vector_series('left_elbow', 'left_shoulder')
@@ -86,19 +88,7 @@ class ShoulderPress(BatchSamplingExercise):
         h = (window.joint_vector_series('left_shoulder', 'left_hip').magnitude + window.joint_vector_series('right_shoulder', 'right_hip').magnitude) / 2
         h = np.sum(h) / h.shape
         k = 0.1
-        # Suppose arm is from wrist to elbow
-        # la_arm = window.joint_vector_series('left_wrist', 'left_elbow')
-        # ra_arm = window.joint_vector_series('right_wrist', 'right_elbow')
         
-
-        # # find if both arm moved up or down
-        # if (la_arm.data[-1] - la_arm.data[0])[1] > k * h and (ra_arm.data[-1] - ra_arm.data[0])[1] > k * h:
-        #     return 'up'
-        # elif (la_arm.data[-1] - la_arm.data[0])[1] < -k * h and (ra_arm.data[-1] - ra_arm.data[0])[1] < -k * h:
-        #     return 'down'
-        # else:
-        #     return 'static'
-
         kps = window.kp_series('left_wrist', 'right_wrist', 'left_elbow', 'right_elbow').data
         displacement = (kps[-1] - kps[0]).mean(axis=0)[1]
         if displacement < -k * h:

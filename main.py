@@ -7,7 +7,7 @@ from utils import Timer
 from ai.inputs import Cv2VideoStream, Cv2WebcamStream
 from ai.models import BlazePose
 from ai.exercises import ShoulderPress
-import numpy as np
+from ai.experimental.exp_shoulder_press import ShoulderPress as exp_ShoulderPress
 
 class AIFlow(object):
     def __init__(self):
@@ -15,6 +15,8 @@ class AIFlow(object):
         self.input = Cv2WebcamStream()
         # self.model = DummyHpeModel()
         self.model = BlazePose(complexity=1, static_mode=False)
+        # Experimental
+        #self.evaluator = exp_ShoulderPress()
         self.evaluator = ShoulderPress()
         self.exercise = None
 
@@ -37,8 +39,7 @@ class AIFlow(object):
             results = self.model.postprocess(keypoints.landmark)
             eval = (self.evaluator.update(Pose(results)))
             # check if the list returned is empty
-            if eval:
-                print(eval)
+            if eval: print(eval)
             # flip horizontally
             drawn = cv2.flip(drawn, 1)
             cv2.imshow("funny", drawn)
