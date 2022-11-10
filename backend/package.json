@@ -36,6 +36,7 @@
     "class-validator": "^0.13.2",
     "gstreamer-superficial": "^1.7.4",
     "jwt-decode": "^3.1.2",
+    "kafkajs": "^2.2.2",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",

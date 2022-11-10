@@ -8,16 +8,17 @@ from ai.inputs import Cv2VideoStream, Cv2WebcamStream
 from ai.models import BlazePose
 from ai.exercises import ShoulderPress
 from ai.experimental.exp_shoulder_press import ShoulderPress as exp_ShoulderPress
+from kafka import KafkaConsumer, KafkaProducer
+
 
 class AIFlow(object):
     def __init__(self):
-        # self.input = Cv2VideoStream("sample.mp4")
-        self.input = Cv2WebcamStream()
-        # self.model = DummyHpeModel()
-        self.model = BlazePose(complexity=1, static_mode=False)
         # Experimental
-        #self.evaluator = exp_ShoulderPress()
+        # self.evaluator = exp_ShoulderPress()
         self.evaluator = ShoulderPress()
+        self.kafkaConsumer = KafkaConsumer(
+            'process.payload', bootstrap_servers='localhost:29091', group_id='my-group')
+        self.kafkaProducer = KafkaProducer(bootstrap_servers='localhost:29091')
         self.exercise = None
 
     def start(self):
@@ -26,26 +27,19 @@ class AIFlow(object):
         return self.thread
 
     def run(self):
-        self.input.start()
-        while not self.input.stopped:
-            frame = self.input.get_frame()
-            if frame is None:
-                continue
-            keypoints = self.model(frame)
-            drawn = self.model.draw(frame, keypoints)
-            if keypoints is None:
-                continue
 
-            results = self.model.postprocess(keypoints.landmark)
-            eval = (self.evaluator.update(Pose(results)))
-            # check if the list returned is empty
-            if eval: print(eval)
-            # flip horizontally
-            drawn = cv2.flip(drawn, 1)
-            cv2.imshow("funny", drawn)
-            if cv2.waitKey(1) == ord('q'):
-                self.input.stop()
-                break
+        for msg in self.kafkaConsumer:
+            print('Retreive')
+            print(msg.value)
+            # TODO: keypoints = ...msg
+            # eval = (self.evaluator.update(Pose(results)))
+            # # check if the list returned is empty
+            # if eval: print(eval)
+            # # flip horizontally
+            # drawn = cv2.flip(drawn, 1)
+            # cv2.imshow("funny", drawn)
+            # if cv2.waitKey(1) == ord('q'):
+            #     break
 
         cv2.destroyAllWindows()
 

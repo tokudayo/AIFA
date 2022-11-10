@@ -10,6 +10,7 @@ import {
 } from '@nestjs/websockets';
 import { writeFile } from 'fs/promises';
 import { Socket, Server } from 'socket.io';
+import { Kafka } from 'kafkajs';
 
 @WebSocketGateway({
   maxHttpBufferSize: 1e8,
@@ -21,6 +22,12 @@ export class EventsGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer() server: Server;
+  private kafka = new Kafka({
+    clientId: 'web',
+    brokers: ['localhost:29091'],
+  });
+  private consumer = this.kafka.consumer({ groupId: 'process.payload.reply' });
+  private producer = this.kafka.producer();
 
   @SubscribeMessage('image_camera')
   async handleImageCamera(client: Socket, payload: any): Promise<void> {
@@ -55,6 +62,18 @@ export class EventsGateway
   @SubscribeMessage('landmark_webcam')
   async handleLandmarkWebcam(client: Socket, payload: any): Promise<void> {
     const date = payload.date;
+    await this.producer.send({
+      topic: 'process.payload',
+      messages: [
+        {
+          value: JSON.stringify({
+            excersise: 'shoulder',
+            data: payload.data,
+            date,
+          }),
+        },
+      ],
+    });
     if (process.env.SAMPLE == 'true')
       writeFile(
         `sample/webcam/${date}_landmark.json`,
@@ -116,5 +135,22 @@ export class EventsGateway
 
     pipeline.play();
     appsink.pull(onPull.bind(null, this.server));
+    await this.producer.connect();
+    await this.consumer.connect();
+    await this.consumer.subscribe({
+      topic: 'process.payload.reply',
+      fromBeginning: false,
+    });
+    await this.consumer.run({
+      eachMessage: async ({ topic, message }) => {
+        console.log(`Got message from ${topic}`);
+        console.log(message.value.toString(), 'Line #62 app.gateway.ts');
+      },
+    });
+  }
+
+  async onModuleDestroy() {
+    await this.producer.disconnect();
+    await this.consumer.disconnect();
   }
 }

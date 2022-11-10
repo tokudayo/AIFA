@@ -25,7 +25,11 @@ export class AuthController {
 
   @Post('sign-up')
   async signup(@Body() body: SignUpUserDto): Promise<Partial<ResponseUserDto>> {
-    return this.authService.signUp(body.email, body.password, body.password);
+    return this.authService.signUp(
+      body.email,
+      body.password,
+      body.passwordConfirmation,
+    );
   }
 
   @Post('access-token')
