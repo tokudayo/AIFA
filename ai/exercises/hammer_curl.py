@@ -7,21 +7,24 @@ from ai.base.vector import Vector, xaxis, yaxis
 from ai.exercises.utils import deg_to_rad, rad_to_deg
 
 
-def check_perpendicular_limb(limb: Vector, target: Optional['Vector'] = xaxis, allowed_error=15):
+def is_perpendicular(vec1: Vector, vec2: Vector, allowed_error=15.):
     allowed_error = deg_to_rad(allowed_error)
-    limb_xaxis_angle = limb.pairwise_angle(target)
-    if abs(limb_xaxis_angle.mean() - math.pi/2) > allowed_error:
+    pw_angle = vec1.pairwise_angle(vec2)
+    if abs(pw_angle.mean() - math.pi/2) > allowed_error:
         return False
     else:
         return True
 
 
 class HammerCurl(BatchSamplingExercise):
-    def __init__(self, window_size: int = 10,):
+    def __init__(self,
+                 window_size: int = 10,
+                 movement_threshold: float = 0.05,
+                 straight_arm_threshold: float = 15.,):
         super().__init__(window_size)
         self.prev_state = 'static'
-        self.lstates = []
-        self.rstates = []
+        self.movement_threshold = movement_threshold
+        self.straight_arm_threshold = straight_arm_threshold
 
     def _decode_state(self, state):
         lstate = 'static' if state[0] != 'l' else state[2:]
@@ -29,10 +32,9 @@ class HammerCurl(BatchSamplingExercise):
         return lstate, rstate
 
     def evaluation(self, verbose=True):
-        state = self.state
         window = self.lastest_window()
         msg_list = []
-        if verbose: print(f"STATE: {state}, P_STATE: {self.prev_state}")
+        if verbose: print(f"STATE: {self.state}, P_STATE: {self.prev_state}")
 
         # # check if body is straight
         # left_upright = window.joint_vector_series('left_shoulder', 'left_hip')
@@ -44,9 +46,9 @@ class HammerCurl(BatchSamplingExercise):
         
         la_arm = window.joint_vector_series('left_shoulder', 'left_elbow')
         ra_arm = window.joint_vector_series('right_shoulder', 'right_elbow')
-        if not check_perpendicular_limb(limb = la_arm, allowed_error=20.):
+        if not is_perpendicular(la_arm, xaxis, allowed_error=self.straight_arm_threshold):
             msg_list.append("Upper left arm must be straight.")
-        if not check_perpendicular_limb(limb = ra_arm, allowed_error=20.):
+        if not is_perpendicular(ra_arm, xaxis, allowed_error=self.straight_arm_threshold):
             msg_list.append("Upper right arm must be straight.")
 
         lstate, rstate = self._decode_state(self.state)
@@ -69,12 +71,12 @@ class HammerCurl(BatchSamplingExercise):
         # When at the bottom
         if lstate != pr_lstate and pr_lstate == 'down':
             left_forearm =  window.joint_vector_series('left_elbow', 'left_wrist')
-            if not check_perpendicular_limb(limb = left_forearm, target = xaxis, allowed_error=10.):
+            if not is_perpendicular(left_forearm, xaxis, allowed_error=self.straight_arm_threshold):
                 msg_list.append("LProblem.")
 
         if rstate != pr_rstate and pr_rstate == 'down':
             right_forearm =  window.joint_vector_series('right_elbow', 'right_wrist')
-            if not check_perpendicular_limb(limb = right_forearm, target = xaxis, allowed_error=10.):
+            if not is_perpendicular(right_forearm, xaxis, allowed_error=self.straight_arm_threshold):
                 msg_list.append("RProblem.")
         return msg_list
 
@@ -82,9 +84,11 @@ class HammerCurl(BatchSamplingExercise):
     def state(self):
         window = self.lastest_window()
         # Distance from hip to shoulder
-        h = (window.joint_vector_series('left_shoulder', 'left_hip').magnitude + window.joint_vector_series('right_shoulder', 'right_hip').magnitude) / 2
-        h = np.sum(h) / h.shape
-        k = 0.05
+        hip_length = (
+            ( window.joint_vector_series('left_shoulder', 'left_hip').magnitude
+            + window.joint_vector_series('right_shoulder', 'right_hip').magnitude) / 2
+        ).mean()
+        thres = self.movement_threshold * hip_length
 
         kps = window.kp_series('left_wrist', 'right_wrist').data
         displacement = (kps[-1] - kps[0])
@@ -92,13 +96,13 @@ class HammerCurl(BatchSamplingExercise):
         rdis = displacement[1][1]
         state = 'static'
         if abs(ldis) > abs(rdis):
-            if ldis < -k * h:
+            if ldis < -thres:
                 state = 'l_up'
-            elif ldis > k * h:
+            elif ldis > thres:
                 state = 'l_down'
         else:
-            if rdis < -k * h:
+            if rdis < -thres:
                 state = 'r_up'
-            elif rdis > k * h:
+            elif rdis > thres:
                 state = 'r_down'
         return state
