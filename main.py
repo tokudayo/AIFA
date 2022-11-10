@@ -9,7 +9,7 @@ from ai.models import BlazePose
 from ai.exercises import ShoulderPress
 from ai.experimental.exp_shoulder_press import ShoulderPress as exp_ShoulderPress
 from kafka import KafkaConsumer, KafkaProducer
-
+from ai.exercises.utils import postprocess_packet
 
 class AIFlow(object):
     def __init__(self):
@@ -31,9 +31,11 @@ class AIFlow(object):
         for msg in self.kafkaConsumer:
             print('Retreive')
             print(msg.value)
-            # TODO: keypoints = ...msg
-            # eval = (self.evaluator.update(Pose(results)))
-            # # check if the list returned is empty
+            kps = postprocess_packet(msg.value)
+            results = (self.evaluator.update(Pose(kps)))
+            
+            print(results)
+
             # if eval: print(eval)
             # # flip horizontally
             # drawn = cv2.flip(drawn, 1)
