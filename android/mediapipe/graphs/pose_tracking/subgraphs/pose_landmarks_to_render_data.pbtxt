@@ -115,8 +115,8 @@ node {
       landmark_connections: 28
       landmark_connections: 32
 
-      landmark_color { r: 255 g: 255 b: 255 }
-      connection_color { r: 255 g: 255 b: 255 }
+      landmark_color { r: 255 g: 0 b: 0 }
+      connection_color { r: 0 g: 255 b: 0 }
       thickness: 3.0
       visualize_landmark_depth: false
       utilize_visibility: true
@@ -179,8 +179,8 @@ node {
   output_stream: "RENDER_DATA:landmarks_background_joints_render_data"
   node_options: {
     [type.googleapis.com/mediapipe.LandmarksToRenderDataCalculatorOptions] {
-      landmark_color { r: 255 g: 255 b: 255 }
-      connection_color { r: 255 g: 255 b: 255 }
+      landmark_color { r: 255 g: 0 b: 0 }
+      connection_color { r: 0 g: 255 b: 0 }
       thickness: 5.0
       visualize_landmark_depth: false
       utilize_visibility: true
@@ -197,8 +197,8 @@ node {
   output_stream: "RENDER_DATA:landmarks_left_joints_render_data"
   node_options: {
     [type.googleapis.com/mediapipe.LandmarksToRenderDataCalculatorOptions] {
-      landmark_color { r: 255 g: 138 b: 0 }
-      connection_color { r: 255 g: 138 b: 0 }
+      landmark_color { r: 255 g: 0 b: 0 }
+      connection_color { r: 255 g: 0 b: 0 }
       thickness: 3.0
       visualize_landmark_depth: false
       utilize_visibility: true
@@ -215,8 +215,8 @@ node {
   output_stream: "RENDER_DATA:landmarks_right_joints_render_data"
   node_options: {
     [type.googleapis.com/mediapipe.LandmarksToRenderDataCalculatorOptions] {
-      landmark_color { r: 0 g: 217 b: 231 }
-      connection_color { r: 0 g: 217 b: 231 }
+      landmark_color { r: 255 g: 0 b: 0 }
+      connection_color { r: 255 g: 0 b: 0 }
       thickness: 3.0
       visualize_landmark_depth: false
       utilize_visibility: true

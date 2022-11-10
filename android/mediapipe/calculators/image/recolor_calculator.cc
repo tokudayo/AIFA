@@ -270,25 +270,25 @@ absl::Status RecolorCalculator::RenderCpu(CalculatorContext* cc) {
 
       fragColor = mix(color1, color2, mix_value);
   */
-  if (mask_img.Format() == ImageFormat::VEC32F1) {
-    for (int i = 0; i < output_mat.rows; ++i) {
-      for (int j = 0; j < output_mat.cols; ++j) {
-        const float weight = mask_full.at<float>(i, j);
-        output_mat.at<cv::Vec3b>(i, j) =
-            Blend(input_mat.at<cv::Vec3b>(i, j), recolor, weight, invert_mask,
-                  adjust_with_luminance);
-      }
-    }
-  } else {
-    for (int i = 0; i < output_mat.rows; ++i) {
-      for (int j = 0; j < output_mat.cols; ++j) {
-        const float weight = mask_full.at<uchar>(i, j) * (1.0 / 255.0);
-        output_mat.at<cv::Vec3b>(i, j) =
-            Blend(input_mat.at<cv::Vec3b>(i, j), recolor, weight, invert_mask,
-                  adjust_with_luminance);
-      }
-    }
-  }
+  // if (mask_img.Format() == ImageFormat::VEC32F1) {
+  //   for (int i = 0; i < output_mat.rows; ++i) {
+  //     for (int j = 0; j < output_mat.cols; ++j) {
+  //       const float weight = mask_full.at<float>(i, j);
+  //       output_mat.at<cv::Vec3b>(i, j) =
+  //           Blend(input_mat.at<cv::Vec3b>(i, j), recolor, weight, invert_mask,
+  //                 adjust_with_luminance);
+  //     }
+  //   }
+  // } else {
+  //   for (int i = 0; i < output_mat.rows; ++i) {
+  //     for (int j = 0; j < output_mat.cols; ++j) {
+  //       const float weight = mask_full.at<uchar>(i, j) * (1.0 / 255.0);
+  //       output_mat.at<cv::Vec3b>(i, j) =
+  //           Blend(input_mat.at<cv::Vec3b>(i, j), recolor, weight, invert_mask,
+  //                 adjust_with_luminance);
+  //     }
+  //   }
+  // }
 
   cc->Outputs()
       .Tag(kImageFrameTag)
@@ -336,7 +336,7 @@ absl::Status RecolorCalculator::RenderGpu(CalculatorContext* cc) {
   }
 
   // Send result image in GPU packet.
-  auto output = dst_tex.GetFrame<mediapipe::GpuBuffer>();
+  auto output = img_tex.GetFrame<mediapipe::GpuBuffer>();
   cc->Outputs().Tag(kGpuBufferTag).Add(output.release(), cc->InputTimestamp());
 
   // Cleanup
@@ -470,7 +470,7 @@ absl::Status RecolorCalculator::InitGpu(CalculatorContext* cc) {
     void main() {
       vec4 weight = texture2D(mask, sample_coordinate);
       vec4 color1 = texture2D(frame, sample_coordinate);
-      vec4 color2 = vec4(recolor, 1.0);
+      vec4 color2 = vec4(recolor, 0.1);
 
       weight = mix(weight, 1.0 - weight, invert_mask);
 
