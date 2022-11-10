@@ -77,7 +77,7 @@ class ShoulderPress(BatchSamplingExercise):
             if not check_perpendicular_limb(limb = rb_arm, target = yaxis, allowed_error=20.):
                 msg_list.append("Keep your right arm to the side.")
                 self.last_fault = 'bottom'
-        return msg_list
+        return ' '.join(msg_list)
 
     @property
     def state(self):
