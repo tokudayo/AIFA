@@ -29,9 +29,9 @@ class AIFlow(object):
     def run(self):
 
         for msg in self.kafkaConsumer:
-            print('Retreive')
-            print(msg.value)
-            kps = postprocess_packet(msg.value)
+            # print('Retreive')
+            # print(msg.value)
+            kps = postprocess_packet(msg.value.decode("utf-8"))
             results = (self.evaluator.update(Pose(kps)))
             
             print(results)
