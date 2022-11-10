@@ -19,12 +19,14 @@ def is_perpendicular(vec1: Vector, vec2: Vector, allowed_error=15.):
 class HammerCurl(BatchSamplingExercise):
     def __init__(self,
                  window_size: int = 10,
-                 movement_threshold: float = 0.05,
-                 straight_arm_threshold: float = 15.,):
+                 movement_threshold: float = 0.07,
+                 straight_arm_threshold: float = 15.,
+                 elbow_angle_threshold: float = 30.,):
         super().__init__(window_size)
         self.prev_state = 'static'
         self.movement_threshold = movement_threshold
         self.straight_arm_threshold = straight_arm_threshold
+        self.elbow_angle_threshold = elbow_angle_threshold
 
     def _decode_state(self, state):
         lstate = 'static' if state[0] != 'l' else state[2:]
@@ -59,13 +61,13 @@ class HammerCurl(BatchSamplingExercise):
         if lstate != pr_lstate and pr_lstate == 'up':
             left_forearm =  window.joint_vector_series('left_elbow', 'left_wrist')
             left_arm = window.joint_vector_series('left_elbow', 'left_shoulder')
-            if left_forearm.angle(left_arm).min() > deg_to_rad(30.):
+            if left_forearm.angle(left_arm).min() > deg_to_rad(self.elbow_angle_threshold):
                 msg_list.append("L Problem")
 
         if rstate != pr_rstate and pr_rstate == 'up':
             right_forearm =  window.joint_vector_series('right_elbow', 'right_wrist')
             right_arm = window.joint_vector_series('right_elbow', 'right_shoulder')
-            if right_forearm.angle(right_arm).min() > deg_to_rad(30.):
+            if right_forearm.angle(right_arm).min() > deg_to_rad(self.elbow_angle_threshold):
                 msg_list.append("R Problem")
                 
         # When at the bottom
