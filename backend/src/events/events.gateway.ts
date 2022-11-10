@@ -29,6 +29,17 @@ export class EventsGateway
   private consumer = this.kafka.consumer({ groupId: 'process.payload.reply' });
   private producer = this.kafka.producer();
 
+  async sendLandmark(data: any) {
+    await this.producer.send({
+      topic: 'process.payload',
+      messages: [
+        {
+          value: JSON.stringify(data),
+        },
+      ],
+    });
+  }
+
   @SubscribeMessage('image_camera')
   async handleImageCamera(client: Socket, payload: any): Promise<void> {
     const date = payload.date;
@@ -52,6 +63,13 @@ export class EventsGateway
   @SubscribeMessage('landmark_camera')
   async handleLandmarkCamera(client: Socket, payload: any): Promise<void> {
     const date = payload.date;
+
+    await this.sendLandmark({
+      excersise: 'shoulder',
+      data: payload.data,
+      date,
+    });
+
     if (process.env.SAMPLE == 'true')
       writeFile(
         `sample/camera/${date}_landmark.json`,
@@ -62,18 +80,13 @@ export class EventsGateway
   @SubscribeMessage('landmark_webcam')
   async handleLandmarkWebcam(client: Socket, payload: any): Promise<void> {
     const date = payload.date;
-    await this.producer.send({
-      topic: 'process.payload',
-      messages: [
-        {
-          value: JSON.stringify({
-            excersise: 'shoulder',
-            data: payload.data,
-            date,
-          }),
-        },
-      ],
+
+    await this.sendLandmark({
+      excersise: 'shoulder',
+      data: payload.data,
+      date,
     });
+
     if (process.env.SAMPLE == 'true')
       writeFile(
         `sample/webcam/${date}_landmark.json`,
@@ -89,6 +102,13 @@ export class EventsGateway
       z: val[2],
       visibility: val[3],
     }));
+
+    await this.sendLandmark({
+      excersise: 'shoulder',
+      data: payload[0],
+      date: payload[1],
+    });
+
     if (process.env.SAMPLE == 'true')
       writeFile(
         `sample/mobile/${payload[1]}_landmark.json`,
