@@ -18,9 +18,27 @@ const WebcamStreamCapture = () => {
     const canvasCtx: any = canvasElement.getContext("2d");
 
     function onResults(results: any) {
-      if (!results.poseLandmarks) {
-        canvasCtx.translate(canvasElement.width, 0);
-        canvasCtx.scale(-1, 1);
+      canvasCtx.save();
+      canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+      if (results.segmentationMask) {
+        canvasCtx.drawImage(
+          results.segmentationMask,
+          0,
+          0,
+          canvasElement.width,
+          canvasElement.height
+        );
+
+        // Only overwrite existing pixels.
+        canvasCtx.globalCompositeOperation = "source-in";
+        canvasCtx.fillStyle = "rgba(255, 255, 255, 0)";
+        canvasCtx.fillRect(0, 0, canvasElement.width, canvasElement.height);
+
+        // Only overwrite missing pixels.
+        canvasCtx.globalCompositeOperation = "destination-atop";
+        // canvasCtx.translate(canvasElement.width, 0);
+        // canvasCtx.scale(-1, 1);
         canvasCtx.drawImage(
           results.image,
           0,
@@ -28,36 +46,17 @@ const WebcamStreamCapture = () => {
           canvasElement.width,
           canvasElement.height
         );
-        return;
+        canvasCtx.globalCompositeOperation = "source-over";
+      } else {
+        canvasCtx.drawImage(
+          results.image,
+          0,
+          0,
+          canvasElement.width,
+          canvasElement.height
+        );
       }
-      canvasCtx.save();
-      canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-      canvasCtx.drawImage(
-        results.segmentationMask,
-        0,
-        0,
-        canvasElement.width,
-        canvasElement.height
-      );
 
-      // Only overwrite existing pixels.
-      canvasCtx.globalCompositeOperation = "source-in";
-      canvasCtx.fillStyle = "rgba(255, 255, 255, 0)";
-      canvasCtx.fillRect(0, 0, canvasElement.width, canvasElement.height);
-
-      // Only overwrite missing pixels.
-      canvasCtx.globalCompositeOperation = "destination-atop";
-      canvasCtx.translate(canvasElement.width, 0);
-      canvasCtx.scale(-1, 1);
-      canvasCtx.drawImage(
-        results.image,
-        0,
-        0,
-        canvasElement.width,
-        canvasElement.height
-      );
-
-      canvasCtx.globalCompositeOperation = "source-over";
       if (results.poseLandmarks) {
         drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {
           color: "#00FF00",
@@ -81,9 +80,10 @@ const WebcamStreamCapture = () => {
       },
     });
     pose.setOptions({
+      selfieMode: true,
       modelComplexity: 1,
       smoothLandmarks: true,
-      enableSegmentation: true,
+      enableSegmentation: false,
       smoothSegmentation: true,
       minDetectionConfidence: 0.5,
       minTrackingConfidence: 0.5,
