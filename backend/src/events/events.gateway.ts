@@ -12,6 +12,17 @@ import { writeFile } from 'fs/promises';
 import { Socket, Server } from 'socket.io';
 import { Kafka } from 'kafkajs';
 
+function getRoomPayload(client: Socket) {
+  let roomRep = null;
+
+  client.rooms.forEach((room) => {
+    if (room.length === 36) {
+      roomRep = room;
+    }
+  });
+  return roomRep;
+}
+
 @WebSocketGateway({
   maxHttpBufferSize: 1e8,
   cors: {
@@ -29,7 +40,11 @@ export class EventsGateway
   private consumer = this.kafka.consumer({ groupId: 'process.payload.reply' });
   private producer = this.kafka.producer();
 
-  async sendLandmark(data: any) {
+  async sendLandmark(client: Socket, data: any) {
+    data.room = getRoomPayload(client);
+    if (!data.room) {
+      return;
+    }
     this.producer.send({
       topic: 'process.payload',
       messages: [
@@ -64,7 +79,7 @@ export class EventsGateway
   async handleLandmarkCamera(client: Socket, payload: any): Promise<void> {
     const date = payload.date;
 
-    this.sendLandmark({
+    this.sendLandmark(client, {
       excersise: 'shoulder',
       data: payload.data,
       date,
@@ -81,7 +96,7 @@ export class EventsGateway
   async handleLandmarkWebcam(client: Socket, payload: any): Promise<void> {
     const date = payload.date;
 
-    this.sendLandmark({
+    this.sendLandmark(client, {
       excersise: 'shoulder',
       data: payload.data,
       date,
@@ -103,7 +118,7 @@ export class EventsGateway
       visibility: val[3],
     }));
 
-    this.sendLandmark({
+    this.sendLandmark(client, {
       excersise: 'shoulder',
       data: payload[0],
       date: payload[1],
@@ -127,20 +142,18 @@ export class EventsGateway
   handleConnection(client: Socket) {
     console.log(`Client connected: ${client.id}`);
     client.on('join', (data) => {
-      console.log('socket join camera room', 'Line #91 events.gateway.ts');
-      client.join(`room ${data.room}`);
+      client.join(`${data.room}`);
     });
     client.on('leave', (data) => {
-      client.leave(`room ${data.room}`);
+      client.leave(`${data.room}`);
     });
   }
 
   async onModuleInit() {
-    const room = 'camera';
     const fps = 10;
     function onPull(socket, buf) {
       if (buf) {
-        socket.to(`room ${room}`).emit('image', buf);
+        socket.to('camera').emit('image', buf);
         appsink.pull(onPull.bind(null, socket));
       } else {
         console.log('NULL BUFFER');
@@ -165,7 +178,8 @@ export class EventsGateway
     });
     await this.consumer.run({
       eachMessage: async ({ message }) => {
-        this.server.emit('alert', message.value.toString());
+        const res = JSON.parse(message.value.toString());
+        this.server.to(res[0]).emit('alert', res[1]);
       },
     });
   }

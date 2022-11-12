@@ -19,7 +19,8 @@ class AIFlow(object):
         self.evaluator = ShoulderPress()
         self.kafka_consumer = KafkaConsumer(
             'process.payload', bootstrap_servers=os.environ['KAFKA_URL'], group_id='my-group')
-        self.kafka_producer = KafkaProducer(bootstrap_servers=os.environ['KAFKA_URL'])
+        self.kafka_producer = KafkaProducer(
+            bootstrap_servers=os.environ['KAFKA_URL'])
         self.exercise = None
 
     def start(self):
@@ -31,12 +32,13 @@ class AIFlow(object):
 
         for msg in self.kafka_consumer:
             # print(msg.value)
-            kps = postprocess_packet(json.loads(msg.value.decode("utf-8")))
+            req = json.loads(msg.value.decode("utf-8"))
+            kps = postprocess_packet(req)
             results = (self.evaluator.update(Pose(kps)))
-            
-            if results is not None:
-                self.kafka_producer.send('process.payload.reply', str.encode(results))
 
+            if results is not None:
+                self.kafka_producer.send('process.payload.reply', str.encode(
+                    json.dumps([req["room"], results], separators=(',', ':'))))
 
 
 if __name__ == "__main__":

@@ -2,6 +2,7 @@
 import io from "socket.io-client";
 import eventBus from "../event/event-bus";
 import { SocketEvent } from "./SocketEvent";
+import { v4 } from "uuid";
 
 export class BaseSocket {
   private static instance: BaseSocket;
@@ -20,6 +21,7 @@ export class BaseSocket {
     this.socket = io(process.env.REACT_APP_WS_HOST as string, {
       transports: ["websocket"],
     });
+    this.socket.emit("join", { room: v4() });
     this.socket.on("alert", (data: any) => {
       eventBus.dispatch(SocketEvent.ALERT, data);
     });
@@ -37,7 +39,7 @@ export class BaseSocket {
   }
 
   emitImageCamera(data: any): void {
-    if (process.env.REACT_APP_SAMPLE === 'true') {
+    if (process.env.REACT_APP_SAMPLE === "true") {
       this.socket.emit("image_camera", data);
     }
   }
@@ -47,7 +49,7 @@ export class BaseSocket {
   }
 
   emitImageWebcam(data: any): void {
-    if (process.env.REACT_APP_SAMPLE === 'true') {
+    if (process.env.REACT_APP_SAMPLE === "true") {
       this.socket.emit("image_webcam", data);
     }
   }

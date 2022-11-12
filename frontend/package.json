@@ -34,6 +34,7 @@
     "socket.io-client": "^4.5.2",
     "three": "^0.144.0",
     "typescript": "^4.8.3",
+    "uuid": "^9.0.0",
     "web-vitals": "^2.1.4",
     "websocket": "^1.0.34"
   },
@@ -60,5 +61,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/uuid": "^8.3.4"
   }
 }
