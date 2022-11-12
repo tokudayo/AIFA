@@ -1,6 +1,6 @@
 import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
 import { Pose, POSE_CONNECTIONS } from "@mediapipe/pose";
-import { Button, Col, Row } from "antd";
+import { Button, Row } from "antd";
 import { useCallback, useState } from "react";
 import eventBus from "../../event/event-bus";
 import { BaseSocket } from "../../socket/BaseSocket";
@@ -8,10 +8,8 @@ import { SocketEvent } from "../../socket/SocketEvent";
 
 const CameraStreamCapture = () => {
   const [isStreaming, setIsStreaming] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   const streamCamVideo = useCallback(() => {
-    setIsLoading(true);
     BaseSocket.getInstance().joinCameraRoom();
     const canvasElement: any =
       document.getElementsByClassName("output_canvas")[0];
@@ -67,7 +65,10 @@ const CameraStreamCapture = () => {
           color: "#FF0000",
           lineWidth: 2,
         });
-        BaseSocket.getInstance().emitLandmarkCamera({ data: results.poseLandmarks, date: Date.now() });
+        BaseSocket.getInstance().emitLandmarkCamera({
+          data: results.poseLandmarks,
+          date: Date.now(),
+        });
       }
       canvasCtx.restore();
     }
@@ -89,11 +90,10 @@ const CameraStreamCapture = () => {
 
     let blob: Blob;
 
-    eventBus.on(SocketEvent.RECIEVED_IMAGE, async (arrayBuffer: any) => {
+    eventBus.on(SocketEvent.RECEIVED_IMAGE, async (arrayBuffer: any) => {
       blob = new Blob([arrayBuffer]);
       const img = new Image();
       img.onload = () => {
-        
         inputCanvasCtx.drawImage(
           img,
           0,
@@ -102,13 +102,15 @@ const CameraStreamCapture = () => {
           inputCanvasElement.height
         );
         inputCanvasElement.toBlob((blob: Blob) => {
-          BaseSocket.getInstance().emitImageCamera({ data: blob, date: Date.now() });
+          BaseSocket.getInstance().emitImageCamera({
+            data: blob,
+            date: Date.now(),
+          });
         });
         pose.send({ image: inputCanvasElement });
       };
       img.src = URL.createObjectURL(blob);
     });
-    setIsLoading(false);
     setIsStreaming(true);
   }, []);
 
@@ -120,25 +122,27 @@ const CameraStreamCapture = () => {
 
   return (
     <>
-      <Row gutter={16} style={!isStreaming ? { display: "none" } : {}}>
-        <Col span={12}>
-          <canvas
-            className="input_canvas"
-            width="640px"
-            height="360px"
-          ></canvas>
-        </Col>
-        <Col span={12}>
-          <canvas
-            className="output_canvas"
-            width="640px"
-            height="360px"
-          ></canvas>
-        </Col>
+      <Row
+        gutter={16}
+        style={!isStreaming ? { display: "none" } : {}}
+        justify="center"
+      >
+        <canvas
+          className="input_canvas"
+          width="854px"
+          height="480px"
+          hidden
+        ></canvas>
+        <canvas className="output_canvas" width="854px" height="480px"></canvas>
       </Row>
-      <Row gutter={16} justify="center" align="middle" style={{ marginTop: "10px" }}>
+      <Row
+        gutter={16}
+        justify="center"
+        align="middle"
+        style={{ marginTop: "10px" }}
+      >
         {!isStreaming && (
-          <Button type="primary" onClick={streamCamVideo} loading={isLoading}>
+          <Button type="primary" onClick={streamCamVideo}>
             Start streaming
           </Button>
         )}

@@ -1,10 +1,11 @@
+import os
+
 from threading import Thread
 
-import cv2
 from ai.base.pose import Pose
+import json
 
 from utils import Timer
-from ai.inputs import Cv2VideoStream, Cv2WebcamStream
 from ai.models import BlazePose
 from ai.exercises import ShoulderPress
 from ai.experimental.exp_shoulder_press import ShoulderPress as exp_ShoulderPress
@@ -16,9 +17,9 @@ class AIFlow(object):
         # Experimental
         # self.evaluator = exp_ShoulderPress()
         self.evaluator = ShoulderPress()
-        self.kafkaConsumer = KafkaConsumer(
-            'process.payload', bootstrap_servers='localhost:29091', group_id='my-group')
-        self.kafkaProducer = KafkaProducer(bootstrap_servers='localhost:29091')
+        self.kafka_consumer = KafkaConsumer(
+            'process.payload', bootstrap_servers=os.environ['KAFKA_URL'], group_id='my-group')
+        self.kafka_producer = KafkaProducer(bootstrap_servers=os.environ['KAFKA_URL'])
         self.exercise = None
 
     def start(self):
@@ -28,22 +29,14 @@ class AIFlow(object):
 
     def run(self):
 
-        for msg in self.kafkaConsumer:
-            # print('Retreive')
+        for msg in self.kafka_consumer:
             # print(msg.value)
-            kps = postprocess_packet(msg.value.decode("utf-8"))
+            kps = postprocess_packet(json.loads(msg.value.decode("utf-8")))
             results = (self.evaluator.update(Pose(kps)))
             
-            print(results)
+            if results is not None:
+                self.kafka_producer.send('process.payload.reply', str.encode(results))
 
-            # if eval: print(eval)
-            # # flip horizontally
-            # drawn = cv2.flip(drawn, 1)
-            # cv2.imshow("funny", drawn)
-            # if cv2.waitKey(1) == ord('q'):
-            #     break
-
-        cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":

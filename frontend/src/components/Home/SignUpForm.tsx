@@ -66,7 +66,7 @@ export default function SignUpForm() {
                       aria-hidden="true"
                     />
                   )}
-                  Sign Up
+                  &nbsp;Sign Up
                 </Button>
               </div>
             </Form>

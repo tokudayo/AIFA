@@ -1,3 +1,4 @@
 export enum SocketEvent {
-  RECIEVED_IMAGE = 'RECIEVED_IMAGE',
+  RECEIVED_IMAGE = 'RECEIVED_IMAGE',
+  ALERT = 'ALERT',
 }
