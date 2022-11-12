@@ -5,22 +5,43 @@ import {
   LogoutOutlined,
   VideoCameraOutlined,
 } from "@ant-design/icons";
-import { Layout as LayoutAnt, Menu } from "antd";
-import React, { useEffect } from "react";
+import { Alert, Col, Layout as LayoutAnt, Menu, Row } from "antd";
+import React, { useEffect, useState } from "react";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { logout } from "../../store/auth/actions";
+import { getLoginStorage, logout } from "../../store/auth/actions";
 import { RootState } from "../../store/reducers";
-const { Header, Content, Footer, Sider } = LayoutAnt;
+import eventBus from "../../event/event-bus";
+import { SocketEvent } from "../../socket/SocketEvent";
+const { Content, Footer, Sider } = LayoutAnt;
 
 const Layout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.AuthReducer);
+  const [alert, setAlert] = useState("Ready");
 
   useEffect(() => {
-    if (!user) {
+    dispatch(getLoginStorage());
+  }, [dispatch]);
+
+  useEffect(() => {
+    let timeout = setTimeout(() => setAlert("Ready"), 3000);
+
+    eventBus.on(SocketEvent.ALERT, async (data: string) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => setAlert("Ready"), 3000);
+      if (data.trim().length === 0) {
+        setAlert("Correct");
+      } else {
+        setAlert(data);
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    if (user === null) {
       navigate("/");
     }
   }, [user, navigate]);
@@ -69,12 +90,12 @@ const Layout = () => {
         />
       </Sider>
       <LayoutAnt>
-        <Header
+        {/* <Header
           className={styles["site-layout-sub-header-background"]}
           style={{
             padding: 0,
           }}
-        />
+        /> */}
         <Content
           style={{
             margin: "24px 16px 0",
@@ -87,6 +108,19 @@ const Layout = () => {
               minHeight: 360,
             }}
           >
+            <Row gutter={16} justify="center">
+              <Col span={16}>
+                {alert === "Ready" && (
+                  <Alert message={alert} type="warning" className="mb-3" />
+                )}
+                {alert === "Correct" && (
+                  <Alert message={alert} type="success" className="mb-3" />
+                )}
+                {alert !== "Correct" && alert !== "Ready" && (
+                  <Alert message={alert} type="error" className="mb-3" />
+                )}
+              </Col>
+            </Row>
             <Outlet />
           </div>
         </Content>

@@ -20,6 +20,9 @@ export class BaseSocket {
     this.socket = io(process.env.REACT_APP_WS_HOST as string, {
       transports: ["websocket"],
     });
+    this.socket.on("alert", (data: any) => {
+      eventBus.dispatch(SocketEvent.ALERT, data);
+    });
   }
 
   public reconnect(): void {
@@ -52,9 +55,7 @@ export class BaseSocket {
   joinCameraRoom(): void {
     this.socket.emit("join", { room: "camera" });
     this.socket.on("image", (data: any) => {
-      console.log('image', 'Line #55 BaseSocket.ts');
-      
-      eventBus.dispatch(SocketEvent.RECIEVED_IMAGE, data);
+      eventBus.dispatch(SocketEvent.RECEIVED_IMAGE, data);
     });
   }
 

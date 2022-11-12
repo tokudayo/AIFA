@@ -1,25 +1,19 @@
 import { Camera } from "@mediapipe/camera_utils";
 import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
 import { Pose, POSE_CONNECTIONS } from "@mediapipe/pose";
-import { Button, Col, Row } from "antd";
+import { Button, Row } from "antd";
 import { useCallback, useState } from "react";
 import { BaseSocket } from "../../socket/BaseSocket";
 
 const WebcamStreamCapture = () => {
   const [isStreaming, setIsStreaming] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [camera, setCamera] = useState(undefined as any);
 
   const streamCamVideo = useCallback(() => {
-    setIsLoading(true);
     const videoElement: any = document.getElementsByClassName("input_video")[0];
     const canvasElement: any =
       document.getElementsByClassName("output_canvas")[0];
     const canvasCtx: any = canvasElement.getContext("2d");
-
-    const hiddenCanvasElement: any =
-      document.getElementsByClassName("hidden_canvas")[0];
-    const hiddenCanvasCtx: any = hiddenCanvasElement.getContext("2d");
 
     function onResults(results: any) {
       if (!results.poseLandmarks) {
@@ -49,6 +43,8 @@ const WebcamStreamCapture = () => {
 
       // Only overwrite missing pixels.
       canvasCtx.globalCompositeOperation = "destination-atop";
+      canvasCtx.translate(canvasElement.width, 0);
+      canvasCtx.scale(-1, 1);
       canvasCtx.drawImage(
         results.image,
         0,
@@ -56,20 +52,6 @@ const WebcamStreamCapture = () => {
         canvasElement.width,
         canvasElement.height
       );
-      hiddenCanvasCtx.drawImage(
-        results.image,
-        0,
-        0,
-        hiddenCanvasElement.width,
-        hiddenCanvasElement.height
-      );
-
-      hiddenCanvasElement.toBlob((blob: Blob) => {
-        BaseSocket.getInstance().emitImageWebcam({
-          data: blob,
-          date: Date.now(),
-        });
-      });
 
       canvasCtx.globalCompositeOperation = "source-over";
       if (results.poseLandmarks) {
@@ -108,12 +90,11 @@ const WebcamStreamCapture = () => {
       onFrame: async () => {
         await pose.send({ image: videoElement });
       },
-      width: 640,
-      height: 360,
+      width: 854,
+      height: 480,
     });
     cameraElem.start();
     setCamera(cameraElem);
-    setIsLoading(false);
     setIsStreaming(true);
   }, []);
 
@@ -124,27 +105,22 @@ const WebcamStreamCapture = () => {
 
   return (
     <>
-      <Row gutter={16} style={!isStreaming ? { display: "none" } : {}}>
-        <Col span={12}>
-          <video className="input_video"></video>
-        </Col>
-        <Col span={12}>
-          <canvas
-            className="output_canvas"
-            width="640px"
-            height="360px"
-          ></canvas>
-          <canvas
-            className="hidden_canvas"
-            width="640px"
-            height="360px"
-            hidden
-          ></canvas>
-        </Col>
+      <Row
+        gutter={16}
+        justify="center"
+        style={!isStreaming ? { display: "none" } : {}}
+      >
+        <video className="input_video" hidden></video>
+        <canvas className="output_canvas" width="854px" height="480px"></canvas>
       </Row>
-      <Row gutter={16} justify="center" align="middle" style={{ marginTop: "10px" }}>
+      <Row
+        gutter={16}
+        justify="center"
+        align="middle"
+        style={{ marginTop: "10px" }}
+      >
         {!isStreaming && (
-          <Button type="primary" onClick={streamCamVideo} loading={isLoading}>
+          <Button type="primary" onClick={streamCamVideo}>
             Start streaming
           </Button>
         )}

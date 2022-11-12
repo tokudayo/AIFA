@@ -24,13 +24,13 @@ export class EventsGateway
   @WebSocketServer() server: Server;
   private kafka = new Kafka({
     clientId: 'web',
-    brokers: ['localhost:29091'],
+    brokers: [process.env.KAFKA_URL],
   });
   private consumer = this.kafka.consumer({ groupId: 'process.payload.reply' });
   private producer = this.kafka.producer();
 
   async sendLandmark(data: any) {
-    await this.producer.send({
+    this.producer.send({
       topic: 'process.payload',
       messages: [
         {
@@ -64,7 +64,7 @@ export class EventsGateway
   async handleLandmarkCamera(client: Socket, payload: any): Promise<void> {
     const date = payload.date;
 
-    await this.sendLandmark({
+    this.sendLandmark({
       excersise: 'shoulder',
       data: payload.data,
       date,
@@ -81,7 +81,7 @@ export class EventsGateway
   async handleLandmarkWebcam(client: Socket, payload: any): Promise<void> {
     const date = payload.date;
 
-    await this.sendLandmark({
+    this.sendLandmark({
       excersise: 'shoulder',
       data: payload.data,
       date,
@@ -103,7 +103,7 @@ export class EventsGateway
       visibility: val[3],
     }));
 
-    await this.sendLandmark({
+    this.sendLandmark({
       excersise: 'shoulder',
       data: payload[0],
       date: payload[1],
@@ -155,6 +155,8 @@ export class EventsGateway
 
     pipeline.play();
     appsink.pull(onPull.bind(null, this.server));
+
+    // KAFKA
     await this.producer.connect();
     await this.consumer.connect();
     await this.consumer.subscribe({
@@ -162,9 +164,8 @@ export class EventsGateway
       fromBeginning: false,
     });
     await this.consumer.run({
-      eachMessage: async ({ topic, message }) => {
-        console.log(`Got message from ${topic}`);
-        console.log(message.value.toString(), 'Line #62 app.gateway.ts');
+      eachMessage: async ({ message }) => {
+        this.server.emit('alert', message.value.toString());
       },
     });
   }

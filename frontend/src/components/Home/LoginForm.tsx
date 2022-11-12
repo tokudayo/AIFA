@@ -55,7 +55,7 @@ export default function LoginForm() {
                       aria-hidden="true"
                     />
                   )}
-                  Login
+                  &nbsp;Login
                 </Button>
               </div>
               <div style={{ display: "flex" }}>
