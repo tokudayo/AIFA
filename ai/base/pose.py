@@ -6,13 +6,19 @@ from ai.models.anno import coco_anno_list as kps_anno
 
 
 class Pose(object):
-    def __init__(self, kps: List[List[float]]):
+    def __init__(self, kps: List[List[float]], frame_w: int = None, frame_h: int = None):
         """
         Takes a list of keypoints in the format: List[[x, y, z, vis]]
         and create a Pose object.
         self.data holds a numpy array of shape (17, 4).
         """
         self.data = np.array(kps)
+
+        # Transformation to normal Euclidean space
+        if frame_w is not None and frame_h is not None:
+            scale = max(frame_w, frame_h)
+            self.data[..., 0] *= frame_w/scale
+            self.data[..., 1] *= frame_h/scale
 
     def __getitem__(self, key: str):
         return self.data[kps_anno.index(key)]
