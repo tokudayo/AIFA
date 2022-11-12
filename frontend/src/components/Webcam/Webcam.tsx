@@ -19,6 +19,8 @@ const WebcamStreamCapture = () => {
 
     function onResults(results: any) {
       if (!results.poseLandmarks) {
+        canvasCtx.translate(canvasElement.width, 0);
+        canvasCtx.scale(-1, 1);
         canvasCtx.drawImage(
           results.image,
           0,
