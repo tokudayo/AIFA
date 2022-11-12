@@ -25,7 +25,9 @@ class Vector(object):
             m1 = np.hstack((m1, np.zeros((m1.shape[0], 1))))
         if m2 is not None and m2.shape[1] == 2:
             m2 = np.hstack((m2, np.zeros((m2.shape[0], 1))))
-        self.data = m1 if m2 is None else m2 - m1
+        self.data = (m1 if m2 is None else m2 - m1).astype(np.float32)
+        # Bad z estimation from model
+        self.data[..., 2] = 0
         self._magnitude = self.__magnitude()
         self._unit_v = self.__unit_v()
         self.name = name
