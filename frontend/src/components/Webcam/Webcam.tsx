@@ -125,9 +125,12 @@ const WebcamStreamCapture = () => {
     const realRatio = width / height;
     const sideBarWidth = windowWidth > 1000 ? 200 : 50;
     const expectedRatio = (windowWidth - sideBarWidth) / windowHeight;
-    const expectedWidth = (windowWidth - sideBarWidth) * 96.5 / 100;
-    const expectedHeight = windowHeight * 96.5 / 100;
-    
+    const expectedWidth =
+      windowWidth < 500
+        ? (windowWidth * 11) / 10
+        : ((windowWidth - sideBarWidth) * 96.5) / 100;
+    const expectedHeight = (windowHeight * 96.5) / 100;
+
     if (realRatio < expectedRatio) {
       setHeight(expectedHeight);
       setWidth(expectedHeight * realRatio);
@@ -145,9 +148,8 @@ const WebcamStreamCapture = () => {
 
     window.addEventListener("resize", updateWindowDimensions);
 
-    return () => window.removeEventListener("resize", updateWindowDimensions) 
+    return () => window.removeEventListener("resize", updateWindowDimensions);
   }, []);
-
 
   return (
     <>
