@@ -92,13 +92,13 @@ const WebcamStreamCapture = () => {
       onFrame: async () => {
         await pose.send({ image: videoElement });
       },
-      width: 854,
-      height: 480,
+      width: width,
+      height: height,
     });
     cameraElem.start();
     setCamera(cameraElem);
     setIsStreaming(true);
-  }, []);
+  }, [width, height]);
 
   const stopStreaming = useCallback(() => {
     camera.stop();
@@ -112,6 +112,7 @@ const WebcamStreamCapture = () => {
       if (width && height) {
         setHeight(480);
         setWidth((width / height) * 480);
+        console.log(`Resolution: ${width}x${height}`); // 640x480
       }
     })();
   }, []);
