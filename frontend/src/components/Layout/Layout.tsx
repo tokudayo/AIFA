@@ -5,7 +5,7 @@ import {
   LogoutOutlined,
   VideoCameraOutlined,
 } from "@ant-design/icons";
-import { Alert, Col, Layout as LayoutAnt, Menu, Row } from "antd";
+import { Alert, Layout as LayoutAnt, Menu } from "antd";
 import React, { useEffect, useState } from "react";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -13,7 +13,7 @@ import { getLoginStorage, logout } from "../../store/auth/actions";
 import { RootState } from "../../store/reducers";
 import eventBus from "../../event/event-bus";
 import { SocketEvent } from "../../socket/SocketEvent";
-const { Content, Footer, Sider } = LayoutAnt;
+const { Content, Sider } = LayoutAnt;
 
 const Layout = () => {
   const navigate = useNavigate();
@@ -98,39 +98,43 @@ const Layout = () => {
         /> */}
         <Content
           style={{
-            margin: "24px 16px 0",
+            margin: "10px 16px 0",
           }}
         >
           <div
             className={styles["site-layout-background"]}
             style={{
-              padding: 24,
+              padding: 5,
               minHeight: 360,
+              position: "relative",
             }}
           >
-            <Row gutter={16} justify="center">
-              <Col span={16}>
-                {alert === "Ready" && (
-                  <Alert message={alert} type="warning" className="mb-3" />
-                )}
-                {alert === "Correct" && (
-                  <Alert message={alert} type="success" className="mb-3" />
-                )}
-                {alert !== "Correct" && alert !== "Ready" && (
-                  <Alert message={alert} type="error" className="mb-3" />
-                )}
-              </Col>
-            </Row>
+            <>
+              {alert === "Ready" && (
+                <Alert
+                  message={alert}
+                  type="warning"
+                  className={`${styles.alert}`}
+                />
+              )}
+              {alert === "Correct" && (
+                <Alert
+                  message={alert}
+                  type="success"
+                  className={`${styles.alert}`}
+                />
+              )}
+              {alert !== "Correct" && alert !== "Ready" && (
+                <Alert
+                  message={alert}
+                  type="error"
+                  className={`${styles.alert}`}
+                />
+              )}
+            </>
             <Outlet />
           </div>
         </Content>
-        <Footer
-          style={{
-            textAlign: "center",
-          }}
-        >
-          Capstone ©2022 Created by Group 7
-        </Footer>
       </LayoutAnt>
     </LayoutAnt>
   );

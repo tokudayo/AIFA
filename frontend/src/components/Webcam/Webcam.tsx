@@ -8,8 +8,8 @@ import { BaseSocket } from "../../socket/BaseSocket";
 const WebcamStreamCapture = () => {
   const [isStreaming, setIsStreaming] = useState(false);
   const [camera, setCamera] = useState(undefined as any);
-  const [width, setWidth] = useState(854);
-  const [height, setHeight] = useState(480);
+  const [width, setWidth] = useState((680 * 16) / 9);
+  const [height, setHeight] = useState(680);
 
   const streamCamVideo = useCallback(() => {
     const videoElement: any = document.getElementsByClassName("input_video")[0];
@@ -112,40 +112,35 @@ const WebcamStreamCapture = () => {
       let stream = await navigator.mediaDevices.getUserMedia({ video: true });
       let { width, height } = stream.getTracks()[0].getSettings();
       if (width && height) {
-        setHeight(480);
-        setWidth((width / height) * 480);
-        console.log(`Resolution: ${width}x${height}`); // 640x480
+        setHeight(680);
+        setWidth((width / height) * 680);
+        console.log(`Resolution: ${width}x${height}`);
       }
     })();
   }, []);
 
   return (
     <>
-      <Row
-        gutter={16}
-        justify="center"
-        style={!isStreaming ? { display: "none" } : {}}
-      >
-        <video className="input_video" hidden></video>
-        <canvas
-          className="output_canvas"
-          width={width}
-          height={height}
-        ></canvas>
-      </Row>
-      <Row
-        gutter={16}
-        justify="center"
-        align="middle"
-        style={{ marginTop: "10px" }}
-      >
+      <Row gutter={16} justify="center" className={!isStreaming ? "mt-5" : ""}>
+        <div style={!isStreaming ? { display: "none" } : {}}>
+          <video className="input_video" hidden></video>
+          <canvas
+            className="output_canvas"
+            width={width}
+            height={height}
+          ></canvas>
+        </div>
         {!isStreaming && (
-          <Button type="primary" onClick={streamCamVideo}>
+          <Button type="primary" className="mt-5" onClick={streamCamVideo}>
             Start streaming
           </Button>
         )}
         {isStreaming && (
-          <Button type="primary" danger onClick={stopStreaming}>
+          <Button
+            style={{ position: "absolute", bottom: "20px" }}
+            danger
+            onClick={stopStreaming}
+          >
             Stop streaming
           </Button>
         )}

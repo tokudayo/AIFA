@@ -121,38 +121,31 @@ const CameraStreamCapture = () => {
   }, []);
 
   return (
-    <>
-      <Row
-        gutter={16}
-        style={!isStreaming ? { display: "none" } : {}}
-        justify="center"
-      >
+    <Row gutter={16} justify="center" className={!isStreaming ? "mt-5" : ""}>
+      <div style={!isStreaming ? { display: "none" } : {}}>
         <canvas
           className="input_canvas"
-          width="854px"
-          height="480px"
+          width="1209px"
+          height="680px"
           hidden
         ></canvas>
-        <canvas className="output_canvas" width="854px" height="480px"></canvas>
-      </Row>
-      <Row
-        gutter={16}
-        justify="center"
-        align="middle"
-        style={{ marginTop: "10px" }}
-      >
-        {!isStreaming && (
-          <Button type="primary" onClick={streamCamVideo}>
-            Start streaming
-          </Button>
-        )}
-        {isStreaming && (
-          <Button type="primary" danger onClick={stopStreaming}>
-            Stop streaming
-          </Button>
-        )}
-      </Row>
-    </>
+        <canvas className="output_canvas" width="1209px" height="680px"></canvas>
+      </div>
+      {!isStreaming && (
+        <Button type="primary" className="mt-5" onClick={streamCamVideo}>
+          Start streaming
+        </Button>
+      )}
+      {isStreaming && (
+        <Button
+          style={{ position: "absolute", bottom: "20px" }}
+          danger
+          onClick={stopStreaming}
+        >
+          Stop streaming
+        </Button>
+      )}
+    </Row>
   );
 };
 
