@@ -19,7 +19,6 @@ export class BaseSocket {
   public connect(): void {
     this.socket = io(process.env.REACT_APP_WS_HOST as string, {
       transports: ["websocket"],
-      path: '/socket',
     });
     this.socket.on("alert", (data: any) => {
       eventBus.dispatch(SocketEvent.ALERT, data);

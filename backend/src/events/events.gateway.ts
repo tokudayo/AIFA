@@ -17,7 +17,6 @@ import { Kafka } from 'kafkajs';
   cors: {
     origin: '*',
   },
-  path: '/socket',
 })
 export class EventsGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
