@@ -27,11 +27,11 @@ const Layout = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    let timeout = setTimeout(() => setAlert("Ready"), 3000);
+    let timeout = setTimeout(() => setAlert("Ready"), 1500);
 
     eventBus.on(SocketEvent.ALERT, async (data: string) => {
       clearTimeout(timeout);
-      timeout = setTimeout(() => setAlert("Ready"), 3000);
+      timeout = setTimeout(() => setAlert("Ready"), 1500);
       if (data.trim().length === 0) {
         setAlert("Correct");
       } else {
