@@ -2,12 +2,14 @@ import { Camera } from "@mediapipe/camera_utils";
 import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
 import { Pose, POSE_CONNECTIONS } from "@mediapipe/pose";
 import { Button, Row } from "antd";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { BaseSocket } from "../../socket/BaseSocket";
 
 const WebcamStreamCapture = () => {
   const [isStreaming, setIsStreaming] = useState(false);
   const [camera, setCamera] = useState(undefined as any);
+  const [width, setWidth] = useState(854);
+  const [height, setHeight] = useState(480);
 
   const streamCamVideo = useCallback(() => {
     const videoElement: any = document.getElementsByClassName("input_video")[0];
@@ -103,6 +105,17 @@ const WebcamStreamCapture = () => {
     setIsStreaming(false);
   }, [camera]);
 
+  useEffect(() => {
+    (async () => {
+      let stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      let { width, height } = stream.getTracks()[0].getSettings();
+      if (width && height) {
+        setHeight(480);
+        setWidth((width / height) * 480);
+      }
+    })();
+  }, []);
+
   return (
     <>
       <Row
@@ -111,7 +124,11 @@ const WebcamStreamCapture = () => {
         style={!isStreaming ? { display: "none" } : {}}
       >
         <video className="input_video" hidden></video>
-        <canvas className="output_canvas" width="854px" height="480px"></canvas>
+        <canvas
+          className="output_canvas"
+          width={width}
+          height={height}
+        ></canvas>
       </Row>
       <Row
         gutter={16}
