@@ -7,6 +7,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
   app.enableCors();
+  app.setGlobalPrefix(process.env.PREFIX);
 
   //Swagger
   const swagConfig = new DocumentBuilder()
@@ -18,7 +19,7 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, swagConfig);
-  SwaggerModule.setup('/docs', app, document, {
+  SwaggerModule.setup(process.env.PREFIX + '/docs', app, document, {
     customSiteTitle: 'Capstone',
   });
 
