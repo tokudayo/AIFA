@@ -10,6 +10,8 @@ const WebcamStreamCapture = () => {
   const [camera, setCamera] = useState(undefined as any);
   const [width, setWidth] = useState((680 * 16) / 9);
   const [height, setHeight] = useState(680);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [windowHeight, setWindowHeight] = useState(window.innerHeight);
 
   const streamCamVideo = useCallback(() => {
     const videoElement: any = document.getElementsByClassName("input_video")[0];
@@ -118,6 +120,34 @@ const WebcamStreamCapture = () => {
       }
     })();
   }, []);
+
+  useEffect(() => {
+    const realRatio = width / height;
+    const sideBarWidth = windowWidth > 1000 ? 200 : 50;
+    const expectedRatio = (windowWidth - sideBarWidth) / windowHeight;
+    const expectedWidth = (windowWidth - sideBarWidth) * 96.5 / 100;
+    const expectedHeight = windowHeight * 96.5 / 100;
+    
+    if (realRatio < expectedRatio) {
+      setHeight(expectedHeight);
+      setWidth(expectedHeight * realRatio);
+    } else {
+      setWidth(expectedWidth);
+      setHeight(expectedWidth / realRatio);
+    }
+  }, [windowWidth, windowHeight, width, height]);
+
+  useEffect(() => {
+    const updateWindowDimensions = () => {
+      setWindowWidth(window.innerWidth);
+      setWindowHeight(window.innerHeight);
+    };
+
+    window.addEventListener("resize", updateWindowDimensions);
+
+    return () => window.removeEventListener("resize", updateWindowDimensions) 
+  }, []);
+
 
   return (
     <>
