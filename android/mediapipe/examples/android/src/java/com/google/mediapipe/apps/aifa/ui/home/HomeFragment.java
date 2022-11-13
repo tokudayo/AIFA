@@ -132,6 +132,12 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         super.onActivityCreated(savedInstanceState);
 
+        try {
+            applicationInfo = getActivity().getPackageManager().getApplicationInfo(getActivity().getPackageName(), PackageManager.GET_META_DATA);
+        } catch (NameNotFoundException e) {
+            Log.e(TAG, "Cannot find application info: " + e);
+        }
+
         mSocket.connect();
 
         previewDisplayView = new SurfaceView(getActivity());
