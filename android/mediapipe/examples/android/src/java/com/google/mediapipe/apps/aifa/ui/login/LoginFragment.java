@@ -92,7 +92,7 @@ public class LoginFragment extends Fragment {
                     View headerView = navigationView.getHeaderView(0);
                     TextView textView = headerView.findViewById(R.id.textView);
                     textView.setText(loginResult.getSuccess().getDisplayName());
-                    // Navigation.findNavController(view).navigate(R.id.nav_home);
+                    Navigation.findNavController(view).navigate(R.id.nav_home);
                 }
             }
         });
