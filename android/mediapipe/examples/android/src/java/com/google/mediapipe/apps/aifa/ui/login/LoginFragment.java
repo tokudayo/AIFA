@@ -39,15 +39,17 @@ public class LoginFragment extends Fragment {
     APIInterface apiInterface;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
+            ViewGroup container, Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
         View root = inflater.inflate(R.layout.fragment_login, container, false);
 
         return root;
     }
 
     public void onViewCreated(View view,
-                              Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        super.onActivityCreated(savedInstanceState);
         loginViewModel = new ViewModelProvider(this, new LoginViewModelFactory())
                 .get(LoginViewModel.class);
 
@@ -55,9 +57,6 @@ public class LoginFragment extends Fragment {
         final EditText passwordEditText = view.findViewById(R.id.password);
         final Button loginButton = view.findViewById(R.id.login);
         final ProgressBar loadingProgressBar = view.findViewById(R.id.loading);
-        // NavigationView navigationView = getActivity().findViewById(R.id.nav_view);
-        // View headerView = navigationView.getHeaderView(0);
-        // TextView textView = headerView.findViewById(R.id.textView);
 
         apiInterface = APIClient.getClient().create(APIInterface.class);
 
@@ -89,7 +88,10 @@ public class LoginFragment extends Fragment {
                 }
                 if (loginResult.getSuccess() != null) {
                     updateUiWithUser(loginResult.getSuccess());
-                    // textView.setText(loginResult.getSuccess().getDisplayName());
+                    NavigationView navigationView = getActivity().findViewById(R.id.nav_view);
+                    View headerView = navigationView.getHeaderView(0);
+                    TextView textView = headerView.findViewById(R.id.textView);
+                    textView.setText(loginResult.getSuccess().getDisplayName());
                     // Navigation.findNavController(view).navigate(R.id.nav_home);
                 }
             }

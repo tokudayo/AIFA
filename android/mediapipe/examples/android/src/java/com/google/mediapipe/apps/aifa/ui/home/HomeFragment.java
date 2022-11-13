@@ -12,20 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.mediapipe.apps.aifa;
+package com.google.mediapipe.apps.aifa.ui.home;
+
+import com.google.mediapipe.apps.aifa.R;
 
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.SurfaceTexture;
+import android.view.LayoutInflater;
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.util.Size;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.annotation.NonNull;
 import com.google.mediapipe.components.CameraHelper;
 import com.google.mediapipe.components.CameraXPreviewHelper;
 import com.google.mediapipe.components.ExternalTextureConverter;
@@ -33,6 +36,16 @@ import com.google.mediapipe.components.FrameProcessor;
 import com.google.mediapipe.components.PermissionHelper;
 import com.google.mediapipe.framework.AndroidAssetUtil;
 import com.google.mediapipe.glutil.EglManager;
+
+import io.socket.client.IO;
+import io.socket.client.Socket;
+import com.google.mediapipe.formats.proto.LandmarkProto.NormalizedLandmark;
+import com.google.mediapipe.formats.proto.LandmarkProto.NormalizedLandmarkList;
+import com.google.mediapipe.framework.PacketGetter;
+import com.google.protobuf.InvalidProtocolBufferException;
+import java.net.URISyntaxException;
+
+import androidx.fragment.app.Fragment;
 
 public class HomeFragment extends Fragment {
     private static final String TAG = "MainActivity";
@@ -106,30 +119,34 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    public View onCreateView(@NonNull LayoutInflater inflater,
+            ViewGroup container, Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+        View root = inflater.inflate(R.layout.fragment_home, container, false);
+
+        return root;
+    }
+
+    public void onViewCreated(View view,
+            Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        super.onActivityCreated(savedInstanceState);
 
         mSocket.connect();
 
-        try {
-            applicationInfo = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
-        } catch (NameNotFoundException e) {
-            Log.e(TAG, "Cannot find application info: " + e);
-        }
-
-        previewDisplayView = new SurfaceView(this);
-        setupPreviewDisplayView();
+        previewDisplayView = new SurfaceView(getActivity());
+        setupPreviewDisplayView(view);
 
         // Initialize asset manager so that MediaPipe native libraries can access the
         // app assets, e.g.,
         // binary graphs.
-        AndroidAssetUtil.initializeNativeAssetManager(this);
+        AndroidAssetUtil.initializeNativeAssetManager(getActivity());
         eglManager = new EglManager(null);
+        long nativeContext = eglManager.getNativeContext();
+
         processor = new FrameProcessor(
-                this,
-                eglManager.getNativeContext(),
+                getActivity(),
+                nativeContext,
                 applicationInfo.metaData.getString("binaryGraphName"),
                 applicationInfo.metaData.getString("inputVideoStreamName"),
                 applicationInfo.metaData.getString("outputVideoStreamName"));
@@ -138,7 +155,7 @@ public class HomeFragment extends Fragment {
                 .setFlipY(
                         applicationInfo.metaData.getBoolean("flipFramesVertically", FLIP_FRAMES_VERTICALLY));
 
-        PermissionHelper.checkAndRequestCameraPermissions(this);
+        PermissionHelper.checkAndRequestCameraPermissions(getActivity());
 
         processor.addPacketCallback(
                 OUTPUT_LANDMARKS_STREAM_NAME,
@@ -154,7 +171,7 @@ public class HomeFragment extends Fragment {
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
         converter = new ExternalTextureConverter(
                 eglManager.getContext(),
@@ -162,13 +179,13 @@ public class HomeFragment extends Fragment {
         converter.setFlipY(
                 applicationInfo.metaData.getBoolean("flipFramesVertically", FLIP_FRAMES_VERTICALLY));
         converter.setConsumer(processor);
-        if (PermissionHelper.cameraPermissionsGranted(this)) {
+        if (PermissionHelper.cameraPermissionsGranted(getActivity())) {
             startCamera();
         }
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
         converter.close();
 
@@ -205,7 +222,7 @@ public class HomeFragment extends Fragment {
                 ? CameraHelper.CameraFacing.FRONT
                 : CameraHelper.CameraFacing.BACK;
         cameraHelper.startCamera(
-                this, cameraFacing, previewFrameTexture, cameraTargetResolution());
+                getActivity(), cameraFacing, previewFrameTexture, cameraTargetResolution());
     }
 
     protected Size computeViewSize(int width, int height) {
@@ -228,9 +245,9 @@ public class HomeFragment extends Fragment {
                 isCameraRotated ? displaySize.getWidth() : displaySize.getHeight());
     }
 
-    private void setupPreviewDisplayView() {
+    private void setupPreviewDisplayView(View view) {
         previewDisplayView.setVisibility(View.GONE);
-        ViewGroup viewGroup = findViewById(R.id.preview_display_layout);
+        ViewGroup viewGroup = view.findViewById(R.id.preview_display_layout);
         viewGroup.addView(previewDisplayView);
 
         previewDisplayView

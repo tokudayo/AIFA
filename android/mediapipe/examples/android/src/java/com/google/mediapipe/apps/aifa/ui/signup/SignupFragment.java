@@ -34,6 +34,7 @@ public class SignupFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
         View root = inflater.inflate(R.layout.fragment_signup, container, false);
 
         return root;
@@ -42,6 +43,7 @@ public class SignupFragment extends Fragment {
     public void onViewCreated(View view,
                               Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        super.onActivityCreated(savedInstanceState);
         signupViewModel = new ViewModelProvider(this, new SignupViewModelFactory())
                 .get(SignupViewModel.class);
 
