@@ -141,11 +141,11 @@ export class EventsGateway
 
   handleConnection(client: Socket) {
     console.log(`Client connected: ${client.id}`);
-    client.on('join', (data) => {
-      client.join(`${data.room}`);
+    client.on('join', (room: string) => {
+      client.join(room);
     });
-    client.on('leave', (data) => {
-      client.leave(`${data.room}`);
+    client.on('leave', (room: string) => {
+      client.leave(room);
     });
   }
 
