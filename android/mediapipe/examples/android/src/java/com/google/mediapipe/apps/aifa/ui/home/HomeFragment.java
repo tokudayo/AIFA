@@ -28,6 +28,8 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import com.google.mediapipe.components.CameraHelper;
 import com.google.mediapipe.components.CameraXPreviewHelper;
@@ -36,9 +38,11 @@ import com.google.mediapipe.components.FrameProcessor;
 import com.google.mediapipe.components.PermissionHelper;
 import com.google.mediapipe.framework.AndroidAssetUtil;
 import com.google.mediapipe.glutil.EglManager;
+import com.google.android.material.snackbar.Snackbar;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
 import com.google.mediapipe.formats.proto.LandmarkProto.NormalizedLandmark;
 import com.google.mediapipe.formats.proto.LandmarkProto.NormalizedLandmarkList;
 import com.google.mediapipe.framework.PacketGetter;
@@ -109,6 +113,8 @@ public class HomeFragment extends Fragment {
     // ApplicationInfo for retrieving metadata defined in the manifest.
     private ApplicationInfo applicationInfo;
 
+    private Snackbar snackbar;
+
     // Websocket
     private static final String OUTPUT_LANDMARKS_STREAM_NAME = "pose_landmarks";
     private Socket mSocket;
@@ -139,6 +145,9 @@ public class HomeFragment extends Fragment {
         }
 
         mSocket.connect();
+
+        mSocket.on("alert", onNewMessage);
+        mSocket.emit("join", java.util.UUID.randomUUID().toString());
 
         previewDisplayView = new SurfaceView(getActivity());
         setupPreviewDisplayView(view);
@@ -175,6 +184,24 @@ public class HomeFragment extends Fragment {
                     }
                 });
     }
+
+    private Emitter.Listener onNewMessage = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    String data = (String) args[0];
+                    try {
+                        snackbar.setText(data);
+                    } catch (Exception e) {
+                        snackbar = Snackbar.make(getActivity().findViewById(android.R.id.content), data, Snackbar.LENGTH_INDEFINITE);
+                        snackbar.show();
+                    }
+                }
+            });
+        }
+    };
 
     @Override
     public void onResume() {
@@ -295,5 +322,14 @@ public class HomeFragment extends Fragment {
         poseLandmarkStr = poseLandmarkStr.substring(0, poseLandmarkStr.length() - 1);
         poseLandmarkStr += "]";
         return poseLandmarkStr;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        snackbar.dismiss();
+        mSocket.disconnect();
+        mSocket.off("alert", onNewMessage);
     }
 }
