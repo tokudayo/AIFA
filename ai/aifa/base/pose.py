@@ -2,7 +2,7 @@ from typing import List, Optional
 import numpy as np
 
 from aifa.base.vector import Vector
-from aifa.models.anno import coco_anno_list as kps_anno
+from aifa.utils.anno import coco_anno_list as kps_anno
 
 
 body_parts = {
