@@ -1,12 +1,12 @@
 from threading import Thread
 
 import cv2
-from ai.base.pose import Pose
+from aifa.base.pose import Pose
 
-from ai.utils import Timer
-from ai.inputs import Cv2VideoStream, Cv2WebcamStream
-from ai.models import BlazePose
-from ai.exercises import ShoulderPress, HammerCurl
+from aifa.utils import Timer
+from aifa.inputs import Cv2VideoStream, Cv2WebcamStream
+from aifa.models import BlazePose
+from aifa.exercises import ShoulderPress, HammerCurl
 
 class AIFlow(object):
     def __init__(self):
