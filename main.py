@@ -5,10 +5,8 @@ from threading import Thread
 from ai.base.pose import Pose
 import json
 
-from utils import Timer
-from ai.models import BlazePose
+from ai.utils import Timer
 from ai.exercises import ShoulderPress
-from ai.experimental.exp_shoulder_press import ShoulderPress as exp_ShoulderPress
 from kafka import KafkaConsumer, KafkaProducer
 from ai.exercises.utils import postprocess_packet
 
