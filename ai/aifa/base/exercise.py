@@ -1,5 +1,5 @@
-from ai.base.pose import Pose, PoseSeries
-from ai.experimental.state import StateSeries
+from aifa.base.pose import Pose, PoseSeries
+from aifa.experimental.state import StateSeries
 
 class Exercise():
     def __init__(self):

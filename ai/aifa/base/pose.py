@@ -1,8 +1,8 @@
 from typing import List, Optional
 import numpy as np
 
-from ai.base.vector import Vector
-from ai.models.anno import coco_anno_list as kps_anno
+from aifa.base.vector import Vector
+from aifa.models.anno import coco_anno_list as kps_anno
 
 
 body_parts = {

@@ -4,7 +4,7 @@ import numpy as np
 import requests
 import time
 
-from ai.base import InputStream
+from aifa.base import InputStream
 
 
 class Cv2HTTPStream(InputStream):

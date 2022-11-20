@@ -2,9 +2,9 @@ import math
 from typing import Optional
 import numpy as np
 
-from ai.base.exercise import BatchSamplingExercise
-from ai.base.vector import Vector, xaxis, yaxis
-from ai.exercises.utils import deg_to_rad
+from aifa.base.exercise import BatchSamplingExercise
+from aifa.base.vector import Vector, xaxis, yaxis
+from aifa.exercises.utils import deg_to_rad
 
 
 def check_perpendicular_limb(limb: Vector, target: Optional['Vector'] = xaxis, allowed_error=15):
