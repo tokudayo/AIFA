@@ -26,9 +26,8 @@ class Cv2VideoStream(InputStream):
                 frame = cv2.resize(
                     frame, None, fx=scale_factor, fy=scale_factor
                 )
-                frame = cv2.flip(frame, 0)
             try:
-                self.queue.put(frame, block=False)
+                self.queue.put(frame, block=True, timeout=1)
             except Exception:
                 pass
         cap.release()
