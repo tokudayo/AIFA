@@ -5,6 +5,29 @@ from ai.base.vector import Vector
 from ai.models.anno import coco_anno_list as kps_anno
 
 
+body_parts = {
+    'shoulders': ('left_shoulder', 'right_shoulder'),
+    'left_side': ('left_shoulder', 'left_hip'),
+    'right_side': ('right_shoulder', 'right_hip'),
+    'left_arm': ('left_shoulder', 'left_elbow'),
+    'right_arm': ('right_shoulder', 'right_elbow'),
+    'left_forearm': ('left_elbow', 'left_wrist'),
+    'right_forearm': ('right_elbow', 'right_wrist'),
+    'hips': ('left_hip', 'right_hip'),
+    'left_leg': ('left_hip', 'left_knee'),
+    'right_leg': ('right_hip', 'right_knee'),
+    'left_calf': ('left_knee', 'left_ankle'),
+    'right_calf': ('right_knee', 'right_ankle'),
+}
+
+
+# Move this to somewhere else
+angles = [
+    ('shoulders', 'left_side'), ('shoulders', 'right_side'),
+    ('left_side', 'hips'), ('right_side', 'hips'),
+]
+
+
 class Pose(object):
     def __init__(self, kps: List[List[float]], frame_w: int = None, frame_h: int = None):
         """
@@ -29,11 +52,24 @@ class Pose(object):
         """
         return Vector(self[key1][..., :3], self[key2][..., :3])
 
-    def similarity(self, other: 'Pose', template: str = 'skeletal_angle'):
+    def skeletal_angle_similarity(self, other: 'Pose', angles: List[List[str]]):
+        pass
+
+    def similarity(self, other: 'Pose', template: str = '', **kwargs):
         """
         A similarity metric between two poses.
+        There are many ways to implement this, depending on how we can make
+        the most out different concepts of "similarity" for different cases.
         """
-        raise NotImplementedError
+        if template == 'skeletal_angle':
+            angles = kwargs.get('angles', None)
+            if angles is None:
+                raise ValueError('Must provide angles for skeletal_angle template')
+            return self.skeletal_angle_similarity(other, angles)
+            # NOTE: Maybe a 'body_parts' function to extract this out is better?
+            pose_A = Vector([self.kp_vector(*angle).data for angle in angles])
+        else:
+            raise NotImplementedError
 
     def __repr__(self):
         return f'Pose({self.data})'
