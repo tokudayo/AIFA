@@ -1,25 +1,21 @@
+import json
 import os
-
 from threading import Thread
 
-from aifa.base.pose import Pose
-import json
+from kafka import KafkaConsumer, KafkaProducer
 
+from aifa.base.pose import Pose
 from aifa.utils import Timer
 from aifa.exercises import ShoulderPress
-from kafka import KafkaConsumer, KafkaProducer
 from aifa.exercises.utils import postprocess_packet
 
 class AIFlow(object):
     def __init__(self):
-        # Experimental
-        # self.evaluator = exp_ShoulderPress()
         self.evaluator = ShoulderPress()
         self.kafka_consumer = KafkaConsumer(
             'process.payload', bootstrap_servers=os.environ['KAFKA_URL'], group_id='my-group')
         self.kafka_producer = KafkaProducer(
             bootstrap_servers=os.environ['KAFKA_URL'])
-        self.exercise = None
 
     def start(self):
         self.thread = Thread(target=self.run)
@@ -27,9 +23,7 @@ class AIFlow(object):
         return self.thread
 
     def run(self):
-
         for msg in self.kafka_consumer:
-            print(msg.value)
             req = json.loads(msg.value.decode("utf-8"))
             kps = postprocess_packet(req)
             results = (self.evaluator.update(Pose(kps)))
