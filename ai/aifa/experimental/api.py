@@ -3,8 +3,8 @@ from typing import List, Union
 from fastapi import FastAPI, APIRouter
 from pydantic import BaseModel
 import numpy as np
-from ai.exercises import ShoulderPress
-from ai.base.pose import Pose
+from aifa.exercises import ShoulderPress
+from aifa.base.pose import Pose
 
 class Landmark(BaseModel):
     x: float

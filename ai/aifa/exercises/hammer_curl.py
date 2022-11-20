@@ -2,9 +2,9 @@ import math
 from typing import Optional
 import numpy as np
 
-from ai.base.exercise import BatchSamplingExercise
-from ai.base.vector import Vector, xaxis, yaxis
-from ai.exercises.utils import deg_to_rad, rad_to_deg
+from aifa.base.exercise import BatchSamplingExercise
+from aifa.base.vector import Vector, xaxis, yaxis
+from aifa.exercises.utils import deg_to_rad, rad_to_deg
 
 
 def is_perpendicular(vec1: Vector, vec2: Vector, allowed_error=15.):

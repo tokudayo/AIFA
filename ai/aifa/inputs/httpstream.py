@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 import requests
 
-from ai.base import InputStream
+from aifa.base import InputStream
 
 
 class HTTPStream(InputStream):

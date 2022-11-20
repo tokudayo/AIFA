@@ -3,7 +3,7 @@ from threading import Thread
 import cv2
 from ai.base.pose import Pose
 
-from utils import Timer
+from ai.utils import Timer
 from ai.inputs import Cv2VideoStream, Cv2WebcamStream
 from ai.models import BlazePose
 from ai.exercises import ShoulderPress, HammerCurl

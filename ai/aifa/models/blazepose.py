@@ -3,7 +3,7 @@ from typing import List, Literal
 import mediapipe as mp
 import numpy as np
 
-from ai.base import HpeModel
+from aifa.base import HpeModel
 
 
 class BlazePose(HpeModel):

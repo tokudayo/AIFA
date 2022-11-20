@@ -47,13 +47,12 @@ services:
     depends_on:
       - backend
   ai:
-    build: .
+    build: ai
     environment:
       KAFKA_URL: kafka:9092
-    command: python main.py
+    command: python run.py
     volumes:
-      - ./ai:/app/ai
-      - ./main.py:/app/main.py
+      - ./ai:/app
     depends_on:
       - backend
 

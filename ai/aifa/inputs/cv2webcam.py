@@ -1,6 +1,6 @@
 import cv2
 
-from ai.base import InputStream
+from aifa.base import InputStream
 
 
 class Cv2WebcamStream(InputStream):
