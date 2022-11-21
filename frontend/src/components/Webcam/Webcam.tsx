@@ -110,13 +110,18 @@ const WebcamStreamCapture = () => {
   }, [camera]);
 
   useEffect(() => {
+    const video: any = document.getElementsByClassName("input_video")[0];
     (async () => {
-      let stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      let { width, height } = stream.getTracks()[0].getSettings();
-      if (width && height) {
+      try {
+        let constraints = {video: {width: 9999}};
+        video.srcObject = await navigator.mediaDevices.getUserMedia(constraints);
+        let track = video.srcObject.getTracks()[0];
+        let {width, height} = track.getSettings();
         setHeight(680);
         setWidth((width / height) * 680);
         console.log(`Resolution: ${width}x${height}`);
+      } catch(e) {
+        console.log(e);
       }
     })();
   }, []);
