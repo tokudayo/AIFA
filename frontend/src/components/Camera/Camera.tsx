@@ -1,15 +1,17 @@
 import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
 import { Pose, POSE_CONNECTIONS } from "@mediapipe/pose";
-import { Button, Row } from "antd";
+import { Button, Form, Row, Select } from "antd";
 import { useCallback, useState } from "react";
 import eventBus from "../../event/event-bus";
 import { BaseSocket } from "../../socket/BaseSocket";
 import { SocketEvent } from "../../socket/SocketEvent";
 
 const CameraStreamCapture = () => {
+  const [pose, setPose] = useState(undefined as any);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [form] = Form.useForm();
 
-  const streamCamVideo = useCallback(() => {
+  const streamCamVideo = useCallback((exercise: string) => {
     BaseSocket.getInstance().joinCameraRoom();
     const canvasElement: any =
       document.getElementsByClassName("output_canvas")[0];
@@ -65,8 +67,9 @@ const CameraStreamCapture = () => {
           color: "#FF0000",
           lineWidth: 2,
         });
-        BaseSocket.getInstance().emitLandmarkCamera({
+        BaseSocket.getInstance().emitLandmarkWebcam({
           data: results.poseLandmarks,
+          exercise: exercise,
           date: Date.now(),
         });
       }
@@ -111,14 +114,16 @@ const CameraStreamCapture = () => {
       };
       img.src = URL.createObjectURL(blob);
     });
+
+    setPose(pose);
     setIsStreaming(true);
   }, []);
 
   const stopStreaming = useCallback(() => {
     BaseSocket.getInstance().leaveCameraRoom();
+    pose.close();
     setIsStreaming(false);
-    window.location.reload();
-  }, []);
+  }, [pose]);
 
   return (
     <Row gutter={16} justify="center" className={!isStreaming ? "mt-5" : ""}>
@@ -129,12 +134,42 @@ const CameraStreamCapture = () => {
           height="680px"
           hidden
         ></canvas>
-        <canvas className="output_canvas" width="1209px" height="680px"></canvas>
+        <canvas
+          className="output_canvas"
+          width="1209px"
+          height="680px"
+        ></canvas>
       </div>
       {!isStreaming && (
-        <Button type="primary" className="mt-5" onClick={streamCamVideo}>
-          Start streaming
-        </Button>
+        <Form
+          className="mt-3"
+          form={form}
+          onFinish={(values) => {
+            streamCamVideo(values.exercise);
+          }}
+        >
+          <Form.Item name="exercise" initialValue="shoulder_press">
+            <Select
+              options={[
+                {
+                  value: "shoulder_press",
+                  label: "Shoulder Press",
+                },
+                {
+                  value: "deadlift",
+                  label: "Deadlift",
+                },
+                {
+                  value: "hammer_curl",
+                  label: "Hammer Curl",
+                },
+              ]}
+            />
+          </Form.Item>
+          <Button className="mt-5" type="primary" htmlType="submit">
+            Start streaming
+          </Button>
+        </Form>
       )}
       {isStreaming && (
         <Button

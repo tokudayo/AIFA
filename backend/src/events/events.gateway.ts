@@ -80,7 +80,7 @@ export class EventsGateway
     const date = payload.date;
 
     this.sendLandmark(client, {
-      excersise: 'shoulder',
+      exercise: payload.exercise,
       data: payload.data,
       date,
     });
@@ -97,7 +97,7 @@ export class EventsGateway
     const date = payload.date;
 
     this.sendLandmark(client, {
-      excersise: 'shoulder',
+      exercise: payload.exercise,
       data: payload.data,
       date,
     });
@@ -119,7 +119,7 @@ export class EventsGateway
     }));
 
     this.sendLandmark(client, {
-      excersise: 'shoulder',
+      exercise: 'shoulder_press',
       data: payload[0],
       date: payload[1],
     });
