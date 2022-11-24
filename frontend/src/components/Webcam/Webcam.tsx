@@ -77,6 +77,8 @@ const WebcamStreamCapture = () => {
             data: results.poseLandmarks,
             exercise: exercise,
             date: Date.now(),
+            width,
+            height,
           });
         }
         canvasCtx.restore();

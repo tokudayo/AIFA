@@ -45,6 +45,7 @@ export class EventsGateway
     if (!data.room) {
       return;
     }
+
     this.producer.send({
       topic: 'process.payload',
       messages: [
@@ -83,6 +84,8 @@ export class EventsGateway
       exercise: payload.exercise,
       data: payload.data,
       date,
+      width: payload.width,
+      height: payload.height,
     });
 
     if (process.env.SAMPLE == 'true')
@@ -100,6 +103,8 @@ export class EventsGateway
       exercise: payload.exercise,
       data: payload.data,
       date,
+      width: payload.width,
+      height: payload.height,
     });
 
     if (process.env.SAMPLE == 'true')

@@ -71,6 +71,8 @@ const CameraStreamCapture = () => {
           data: results.poseLandmarks,
           exercise: exercise,
           date: Date.now(),
+          width: 1209,
+          height: 680,
         });
       }
       canvasCtx.restore();
