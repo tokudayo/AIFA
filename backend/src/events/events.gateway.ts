@@ -11,16 +11,54 @@ import {
 import { writeFile } from 'fs/promises';
 import { Socket, Server } from 'socket.io';
 import { Kafka } from 'kafkajs';
+import { CreateAnalyticDto } from 'src/analytics/dto/create-analytic.dto';
+
+type MapAnalyticsService = {
+  [userId: number]: CreateAnalyticDto;
+};
+const datas: MapAnalyticsService = {};
 
 function getRoomPayload(client: Socket) {
   let roomRep = null;
 
   client.rooms.forEach((room) => {
-    if (room.length === 36) {
+    const id = getId(room);
+    if (id) {
       roomRep = room;
     }
   });
   return roomRep;
+}
+
+function getId(room: string) {
+  if (room.startsWith('user,')) {
+    return Number(room.split(',')[1]);
+  }
+  return null;
+}
+
+function getExercise(room: string) {
+  if (room.startsWith('user,')) {
+    return room.split(',')[2];
+  }
+  return null;
+}
+
+function getPlatform(room: string) {
+  if (room.startsWith('user,')) {
+    return room.split(',')[3];
+  }
+  return null;
+}
+
+function leaveRoom(room: string) {
+  const id = getId(room);
+  if (id && datas[id]) {
+    datas[id].endTime = new Date();
+    const data = JSON.parse(JSON.stringify(datas[id]));
+    delete datas[id];
+    console.log(data, 'Line #152 events.gateway.ts');
+  }
 }
 
 @WebSocketGateway({
@@ -144,15 +182,32 @@ export class EventsGateway
 
   handleDisconnect(client: Socket) {
     console.log(`Client disconnected: ${client.id}`);
+    for (const room of client.rooms) {
+      leaveRoom(room);
+    }
   }
 
   handleConnection(client: Socket) {
     console.log(`Client connected: ${client.id}`);
     client.on('join', (room: string) => {
       client.join(room);
+      const userId = getId(room);
+      const exercise = getExercise(room);
+      const platform = getPlatform(room);
+      if (userId) {
+        datas[userId] = {
+          userId,
+          startTime: new Date(),
+          endTime: new Date(),
+          count: {},
+          exercise: exercise,
+          platform,
+        };
+      }
     });
     client.on('leave', (room: string) => {
       client.leave(room);
+      leaveRoom(room);
     });
   }
 
@@ -187,6 +242,12 @@ export class EventsGateway
       eachMessage: async ({ message }) => {
         const res = JSON.parse(message.value.toString());
         this.server.to(res[0]).emit('alert', res[1]);
+        const userId = getId(res[0]);
+        const alert = res[1] == '' ? 'Correct' : res[1];
+        if (!datas[userId].count[alert]) {
+          datas[userId].count[alert] = 0;
+        }
+        ++datas[userId].count[alert];
       },
     });
   }

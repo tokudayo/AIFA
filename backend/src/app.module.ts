@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AnalyticsModule } from './analytics/analytics.module';
+import { AnalyticEntity } from './analytics/entities/analytic.entity';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -22,7 +24,7 @@ import { UsersModule } from './users/users.module';
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_DATABASE'),
-        entities: [UserEntity],
+        entities: [UserEntity, AnalyticEntity],
         synchronize: true,
         logging: true,
         extra: {
@@ -35,7 +37,8 @@ import { UsersModule } from './users/users.module';
     }),
     EventsModule,
     UsersModule,
-    AuthModule
+    AuthModule,
+    AnalyticsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

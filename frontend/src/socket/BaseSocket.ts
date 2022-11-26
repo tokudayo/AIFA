@@ -2,7 +2,6 @@
 import io from "socket.io-client";
 import eventBus from "../event/event-bus";
 import { SocketEvent } from "./SocketEvent";
-import { v4 } from "uuid";
 
 export class BaseSocket {
   private static instance: BaseSocket;
@@ -21,7 +20,6 @@ export class BaseSocket {
     this.socket = io(process.env.REACT_APP_WS_HOST as string, {
       transports: ["websocket"],
     });
-    this.socket.emit("join", v4());
     this.socket.on("alert", (data: any) => {
       eventBus.dispatch(SocketEvent.ALERT, data);
     });
@@ -32,6 +30,10 @@ export class BaseSocket {
       this.socket.disconnect();
     }
     this.connect();
+  }
+
+  public joinUserRoom(userId: number, exercise: string) {
+    this.socket.emit("join", `user,${userId},${exercise},web`)
   }
 
   emitLandmarkCamera(data: any): void {
@@ -64,6 +66,10 @@ export class BaseSocket {
   leaveCameraRoom(): void {
     this.socket.emit("leave", "camera");
     this.socket.off("image");
+  }
+
+  public leaveUserRoom(userId: number) {
+    this.socket.emit("leave", `user,${userId}`)
   }
 
   disconnectSocket(): void {

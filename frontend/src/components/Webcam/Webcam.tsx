@@ -3,7 +3,9 @@ import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
 import { Pose, POSE_CONNECTIONS } from "@mediapipe/pose";
 import { Button, Row, Select, Form } from "antd";
 import { useCallback, useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import { BaseSocket } from "../../socket/BaseSocket";
+import { RootState } from "../../store/reducers";
 
 const WebcamStreamCapture = () => {
   const [isStreaming, setIsStreaming] = useState(false);
@@ -14,9 +16,11 @@ const WebcamStreamCapture = () => {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
   const [form] = Form.useForm();
+  const { user } = useSelector((state: RootState) => state.AuthReducer);
 
   const streamCamVideo = useCallback(
     (exercise: string) => {
+      BaseSocket.getInstance().joinUserRoom(user?.id || 0, exercise);
       const videoElement: any =
         document.getElementsByClassName("input_video")[0];
       const canvasElement: any =
@@ -112,14 +116,15 @@ const WebcamStreamCapture = () => {
       setCamera(cameraElem);
       setIsStreaming(true);
     },
-    [width, height]
+    [width, height, user]
   );
 
   const stopStreaming = useCallback(() => {
+    BaseSocket.getInstance().leaveUserRoom(user?.id || 0);
     camera.stop();
     pose.close();
     setIsStreaming(false);
-  }, [camera, pose]);
+  }, [camera, pose, user]);
 
   useEffect(() => {
     const video: any = document.getElementsByClassName("input_video")[0];

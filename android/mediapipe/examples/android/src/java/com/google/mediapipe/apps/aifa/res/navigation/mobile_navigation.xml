@@ -18,6 +18,12 @@
         tools:layout="@layout/fragment_login" />
 
     <fragment
+        android:id="@+id/nav_logout"
+        android:name="com.google.mediapipe.apps.aifa.ui.logout.LogoutFragment"
+        android:label="@string/menu_logout"
+        tools:layout="@layout/fragment_logout" />
+
+    <fragment
         android:id="@+id/nav_signup"
         android:name="com.google.mediapipe.apps.aifa.ui.signup.SignupFragment"
         android:label="@string/menu_signup"

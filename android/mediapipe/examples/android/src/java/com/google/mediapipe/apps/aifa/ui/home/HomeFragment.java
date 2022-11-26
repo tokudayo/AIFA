@@ -37,8 +37,8 @@ import com.google.mediapipe.apps.aifa.ui.home.StreamFragment;
 import org.w3c.dom.Text;
 
 public class HomeFragment extends Fragment {
-    private String[] items = new String[]{"Shoulder Press", "Deadlift", "Hammer Curl"};
-    private String[] values = new String[]{"shoulder_press", "deadlift", "hammer_curl"};
+    private String[] items = new String[] { "Shoulder Press", "Deadlift", "Hammer Curl" };
+    private String[] values = new String[] { "shoulder_press", "deadlift", "hammer_curl" };
     private Fragment frag;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -47,7 +47,8 @@ public class HomeFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_home, container, false);
 
         Spinner dropdown = root.findViewById(R.id.spinner);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_dropdown_item, items);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_dropdown_item,
+                items);
         dropdown.setAdapter(adapter);
 
         return root;
@@ -66,7 +67,8 @@ public class HomeFragment extends Fragment {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                frag = StreamFragment.newInstance(values[spinner.getSelectedItemPosition()], socketEditText.getText().toString());
+                frag = StreamFragment.newInstance(values[spinner.getSelectedItemPosition()],
+                        socketEditText.getText().toString());
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
                 spinner.setVisibility(View.INVISIBLE);
                 startButton.setVisibility(View.INVISIBLE);

@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,6 +27,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
 import com.google.mediapipe.apps.aifa.R;
+import com.google.mediapipe.apps.aifa.MainActivity;
 import com.google.mediapipe.apps.aifa.data.APIClient;
 import com.google.mediapipe.apps.aifa.data.APIInterface;
 import com.google.mediapipe.apps.aifa.ui.login.LoginViewModel;
@@ -92,7 +94,13 @@ public class LoginFragment extends Fragment {
                     View headerView = navigationView.getHeaderView(0);
                     TextView textView = headerView.findViewById(R.id.textView);
                     textView.setText(loginResult.getSuccess().getDisplayName());
-                    Navigation.findNavController(view).navigate(R.id.nav_home);
+
+                    SharedPreferences sp = getActivity().getSharedPreferences("Login", 0);
+                    SharedPreferences.Editor Ed = sp.edit();
+                    Ed.putInt("userId", loginResult.getSuccess().getUserId());
+                    Ed.putString("email", loginResult.getSuccess().getDisplayName());
+                    Ed.commit();
+                    ((MainActivity)getActivity()).reloadNavbar();
                 }
             }
         });

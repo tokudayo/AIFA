@@ -163,7 +163,9 @@ public class StreamFragment extends Fragment {
         mSocket.connect();
 
         mSocket.on("alert", onNewMessage);
-        mSocket.emit("join", java.util.UUID.randomUUID().toString());
+        SharedPreferences sp = this.getContext().getSharedPreferences("Login", 0);
+        Integer userId = sp1.getInt("userId", 0);
+        mSocket.emit("join", "user," + userId + "," + getArguments().getString("exercise") + ",android");
 
         previewDisplayView = new SurfaceView(getActivity());
         setupPreviewDisplayView(view);

@@ -2,17 +2,21 @@ import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
 import { Pose, POSE_CONNECTIONS } from "@mediapipe/pose";
 import { Button, Form, Row, Select } from "antd";
 import { useCallback, useState } from "react";
+import { useSelector } from "react-redux";
 import eventBus from "../../event/event-bus";
 import { BaseSocket } from "../../socket/BaseSocket";
 import { SocketEvent } from "../../socket/SocketEvent";
+import { RootState } from "../../store/reducers";
 
 const CameraStreamCapture = () => {
   const [pose, setPose] = useState(undefined as any);
   const [isStreaming, setIsStreaming] = useState(false);
   const [form] = Form.useForm();
+  const { user } = useSelector((state: RootState) => state.AuthReducer);
 
   const streamCamVideo = useCallback((exercise: string) => {
     BaseSocket.getInstance().joinCameraRoom();
+    BaseSocket.getInstance().joinUserRoom(user?.id || 0, exercise);
     const canvasElement: any =
       document.getElementsByClassName("output_canvas")[0];
     const canvasCtx: any = canvasElement.getContext("2d");
@@ -119,13 +123,14 @@ const CameraStreamCapture = () => {
 
     setPose(pose);
     setIsStreaming(true);
-  }, []);
+  }, [user]);
 
   const stopStreaming = useCallback(() => {
     BaseSocket.getInstance().leaveCameraRoom();
+    BaseSocket.getInstance().leaveUserRoom(user?.id || 0);
     pose.close();
     setIsStreaming(false);
-  }, [pose]);
+  }, [pose, user]);
 
   return (
     <Row gutter={16} justify="center" className={!isStreaming ? "mt-5" : ""}>
