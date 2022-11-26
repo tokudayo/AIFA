@@ -182,10 +182,10 @@ export class EventsGateway
   }
 
   handleDisconnect(client: Socket) {
-    console.log(`Client disconnected: ${client.id} ${client.rooms}`);
-    for (const room of client.rooms) {
+    console.log(`Client disconnected: ${client.id}`);
+    client.rooms.forEach((room) => {
       leaveRoom(room);
-    }
+    });
   }
 
   handleConnection(client: Socket) {
