@@ -80,8 +80,6 @@ export class EventsGateway
 
   async sendLandmark(client: Socket, data: any) {
     data.room = getRoomPayload(client);
-    console.log(data.room, 'Line #83 events.gateway.ts');
-    
     if (!data.room) {
       return;
     }
@@ -247,15 +245,15 @@ export class EventsGateway
     await this.consumer.run({
       eachMessage: async ({ message }) => {
         const res = JSON.parse(message.value.toString());
-        console.log(res[0], 'Line #250 events.gateway.ts');
-        
         this.server.to(res[0]).emit('alert', res[1]);
         const userId = getId(res[0]);
-        const alert = res[1] == '' ? 'Correct' : res[1];
-        if (!datas[sockets[userId]].count[alert]) {
-          datas[sockets[userId]].count[alert] = 0;
+        if (sockets[userId]) {
+          const alert = res[1] == '' ? 'Correct' : res[1];
+          if (!datas[sockets[userId]].count[alert]) {
+            datas[sockets[userId]].count[alert] = 0;
+          }
+          ++datas[sockets[userId]].count[alert];
         }
-        ++datas[sockets[userId]].count[alert];
       },
     });
   }
