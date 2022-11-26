@@ -12,11 +12,12 @@ import { writeFile } from 'fs/promises';
 import { Socket, Server } from 'socket.io';
 import { Kafka } from 'kafkajs';
 import { CreateAnalyticDto } from 'src/analytics/dto/create-analytic.dto';
+import { AnalyticsService } from 'src/analytics/analytics.service';
 
-type MapAnalyticsService = {
+type MapAnalyticsDto = {
   [clientId: string]: CreateAnalyticDto;
 };
-const datas: MapAnalyticsService = {};
+const datas: MapAnalyticsDto = {};
 const sockets = {};
 
 function getRoomPayload(client: Socket) {
@@ -52,15 +53,6 @@ function getPlatform(room: string) {
   return null;
 }
 
-function disconnect(clientId: string) {
-  if (datas[clientId]) {
-    datas[clientId].endTime = new Date();
-    const data = JSON.parse(JSON.stringify(datas[clientId]));
-    delete datas[clientId];
-    console.log(data, 'Line #152 events.gateway.ts');
-  }
-}
-
 @WebSocketGateway({
   maxHttpBufferSize: 1e8,
   cors: {
@@ -77,6 +69,17 @@ export class EventsGateway
   });
   private consumer = this.kafka.consumer({ groupId: 'process.payload.reply' });
   private producer = this.kafka.producer();
+
+  constructor(private readonly analyticsService: AnalyticsService) {}
+
+  async disconnect(clientId: string) {
+    if (datas[clientId]) {
+      datas[clientId].endTime = new Date();
+      const data = JSON.parse(JSON.stringify(datas[clientId]));
+      delete datas[clientId];
+      await this.analyticsService.create(data);
+    }
+  }
 
   async sendLandmark(client: Socket, data: any) {
     data.room = getRoomPayload(client);
@@ -183,7 +186,7 @@ export class EventsGateway
   handleDisconnect(client: Socket) {
     console.log(`Client disconnected: ${client.id}`);
     console.log('Room: ' + new Array(...client.rooms).join(' '));
-    disconnect(client.id);
+    this.disconnect(client.id);
   }
 
   handleConnection(client: Socket) {
@@ -210,7 +213,7 @@ export class EventsGateway
       const userId = getId(room);
       client.leave(room);
       if (userId) {
-        disconnect(client.id);
+        this.disconnect(client.id);
       }
     });
   }

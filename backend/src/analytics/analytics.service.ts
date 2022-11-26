@@ -46,10 +46,10 @@ export class AnalyticsService {
     await this.analyticRepository.delete(id);
   }
 
-  async findByUserId(userId: number): Promise<AnalyticEntity> {
+  async findByUserId(userId: number): Promise<AnalyticEntity[]> {
     return this.analyticRepository
       .createQueryBuilder('analytics')
       .where('analytics."userId" = :userId', { userId })
-      .getOne();
+      .getMany();
   }
 }

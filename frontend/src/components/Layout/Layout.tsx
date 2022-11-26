@@ -1,6 +1,7 @@
 import "antd/dist/antd.min.css";
 import styles from "./Layout.module.css";
 import {
+  AlignLeftOutlined,
   CameraOutlined,
   LogoutOutlined,
   VideoCameraOutlined,
@@ -64,11 +65,19 @@ const Layout = () => {
             } else if (e.key === "2") {
               navigate("/index/camera");
             } else if (e.key === "3") {
+              navigate("/index/analytics");
+            } else if (e.key === "4") {
               dispatch(logout());
             }
           }}
           defaultSelectedKeys={["1"]}
-          selectedKeys={[location.pathname.includes("camera") ? "2" : "1"]}
+          selectedKeys={[
+            location.pathname.includes("camera")
+              ? "2"
+              : location.pathname.includes("analytics")
+              ? "3"
+              : "1",
+          ]}
           items={[
             {
               icon: CameraOutlined,
@@ -77,6 +86,10 @@ const Layout = () => {
             {
               icon: VideoCameraOutlined,
               label: "Camera Streaming",
+            },
+            {
+              icon: AlignLeftOutlined,
+              label: "Analytics",
             },
             {
               icon: LogoutOutlined,
@@ -110,26 +123,30 @@ const Layout = () => {
             }}
           >
             <>
-              {alert === "Ready" && (
-                <Alert
-                  message={alert}
-                  type="warning"
-                  className={`${styles.alert}`}
-                />
-              )}
-              {alert === "Correct" && (
-                <Alert
-                  message={alert}
-                  type="success"
-                  className={`${styles.alert}`}
-                />
-              )}
-              {alert !== "Correct" && alert !== "Ready" && (
-                <Alert
-                  message={alert}
-                  type="error"
-                  className={`${styles.alert}`}
-                />
+              {!location.pathname.includes("analytics") && (
+                <>
+                  {alert === "Ready" && (
+                    <Alert
+                      message={alert}
+                      type="warning"
+                      className={`${styles.alert}`}
+                    />
+                  )}
+                  {alert === "Correct" && (
+                    <Alert
+                      message={alert}
+                      type="success"
+                      className={`${styles.alert}`}
+                    />
+                  )}
+                  {alert !== "Correct" && alert !== "Ready" && (
+                    <Alert
+                      message={alert}
+                      type="error"
+                      className={`${styles.alert}`}
+                    />
+                  )}
+                </>
               )}
             </>
             <Outlet />

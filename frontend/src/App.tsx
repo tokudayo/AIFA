@@ -10,6 +10,7 @@ import { BaseSocket } from "./socket/BaseSocket";
 import store from "./store/configureStore";
 import { Provider } from "react-redux";
 import SignUpPage from "./components/Home/SignUpPage";
+import Analytics from "./components/Analytics/Analytics";
 
 const router = createBrowserRouter([
   {
@@ -27,6 +28,10 @@ const router = createBrowserRouter([
       {
         path: "/index/camera",
         element: <CameraStreamCapture />,
+      },
+      {
+        path: "/index/analytics",
+        element: <Analytics />,
       },
     ],
   },
