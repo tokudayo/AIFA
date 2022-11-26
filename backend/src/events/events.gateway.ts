@@ -52,6 +52,7 @@ function getPlatform(room: string) {
 }
 
 function leaveRoom(room: string) {
+  console.log(`Client leave room: ${room}`);
   const id = getId(room);
   if (id && datas[id]) {
     datas[id].endTime = new Date();
@@ -190,6 +191,7 @@ export class EventsGateway
   handleConnection(client: Socket) {
     console.log(`Client connected: ${client.id}`);
     client.on('join', (room: string) => {
+      console.log(`Client join room: ${room}`);
       client.join(room);
       const userId = getId(room);
       const exercise = getExercise(room);
