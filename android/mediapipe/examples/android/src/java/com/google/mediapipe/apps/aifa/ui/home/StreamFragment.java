@@ -30,6 +30,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.content.SharedPreferences;
 import androidx.annotation.NonNull;
 import com.google.mediapipe.components.CameraHelper;
 import com.google.mediapipe.components.CameraXPreviewHelper;
@@ -164,7 +165,7 @@ public class StreamFragment extends Fragment {
 
         mSocket.on("alert", onNewMessage);
         SharedPreferences sp = this.getContext().getSharedPreferences("Login", 0);
-        Integer userId = sp1.getInt("userId", 0);
+        Integer userId = sp.getInt("userId", 0);
         mSocket.emit("join", "user," + userId + "," + getArguments().getString("exercise") + ",android");
 
         previewDisplayView = new SurfaceView(getActivity());
