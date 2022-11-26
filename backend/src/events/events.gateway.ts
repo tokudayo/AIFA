@@ -123,10 +123,19 @@ export class EventsGateway
       visibility: val[3],
     }));
 
+    console.log(
+      payload[2],
+      payload[3],
+      payload[4],
+      'Line #126 events.gateway.ts',
+    );
+
     this.sendLandmark(client, {
-      exercise: 'shoulder_press',
+      exercise: payload[2],
       data: payload[0],
       date: payload[1],
+      width: payload[3],
+      height: payload[4],
     });
 
     if (process.env.SAMPLE == 'true')

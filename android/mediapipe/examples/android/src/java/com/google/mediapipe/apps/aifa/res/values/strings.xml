@@ -17,6 +17,7 @@
     <string name="prompt_password_confirmation">Password Confirmation</string>
     <string name="action_sign_in">Login</string>
     <string name="action_sign_in_short">Login</string>
+    <string name="action_start">Start</string>
     <string name="action_sign_up">Sign up</string>
     <string name="action_sign_up_short">Sign up</string>
     <string name="signup_success">Sign up success! </string>
@@ -25,4 +26,10 @@
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
     <string name="signup_failed">"Sign up failed"</string>
+
+    <string-array name="exercise_array">
+        <item>Shoulder Press</item>
+        <item>Deadlift</item>
+        <item>Hammer Curl</item>
+    </string-array>
 </resources>
