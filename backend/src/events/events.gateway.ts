@@ -247,6 +247,8 @@ export class EventsGateway
     await this.consumer.run({
       eachMessage: async ({ message }) => {
         const res = JSON.parse(message.value.toString());
+        console.log(res[0], 'Line #250 events.gateway.ts');
+        
         this.server.to(res[0]).emit('alert', res[1]);
         const userId = getId(res[0]);
         const alert = res[1] == '' ? 'Correct' : res[1];
