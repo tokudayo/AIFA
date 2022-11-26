@@ -134,8 +134,8 @@ export class EventsGateway
       exercise: payload[2],
       data: payload[0],
       date: payload[1],
-      width: payload[3],
-      height: payload[4],
+      width: Number(payload[3]),
+      height: Number(payload[4]),
     });
 
     if (process.env.SAMPLE == 'true')
