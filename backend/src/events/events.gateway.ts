@@ -183,6 +183,7 @@ export class EventsGateway
 
   handleDisconnect(client: Socket) {
     console.log(`Client disconnected: ${client.id}`);
+    console.log('Room: ' + new Array(...client.rooms).join(' '));
     client.rooms.forEach((room) => {
       leaveRoom(room);
     });
