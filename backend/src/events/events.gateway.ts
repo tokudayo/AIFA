@@ -123,13 +123,6 @@ export class EventsGateway
       visibility: val[3],
     }));
 
-    console.log(
-      payload[2],
-      payload[3],
-      payload[4],
-      'Line #126 events.gateway.ts',
-    );
-
     this.sendLandmark(client, {
       exercise: payload[2],
       data: payload[0],
@@ -193,6 +186,7 @@ export class EventsGateway
     await this.consumer.run({
       eachMessage: async ({ message }) => {
         const res = JSON.parse(message.value.toString());
+        console.log(res, 'Line #189 events.gateway.ts');
         this.server.to(res[0]).emit('alert', res[1]);
       },
     });
