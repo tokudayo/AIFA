@@ -14,7 +14,7 @@ import { Kafka } from 'kafkajs';
 import { CreateAnalyticDto } from 'src/analytics/dto/create-analytic.dto';
 
 type MapAnalyticsService = {
-  [userId: number]: CreateAnalyticDto;
+  [clientId: string]: CreateAnalyticDto;
 };
 const datas: MapAnalyticsService = {};
 
@@ -51,13 +51,11 @@ function getPlatform(room: string) {
   return null;
 }
 
-function leaveRoom(room: string) {
-  console.log(`Client leave room: ${room}`);
-  const id = getId(room);
-  if (id && datas[id]) {
-    datas[id].endTime = new Date();
-    const data = JSON.parse(JSON.stringify(datas[id]));
-    delete datas[id];
+function disconnect(clientId: string) {
+  if (datas[clientId]) {
+    datas[clientId].endTime = new Date();
+    const data = JSON.parse(JSON.stringify(datas[clientId]));
+    delete datas[clientId];
     console.log(data, 'Line #152 events.gateway.ts');
   }
 }
@@ -184,9 +182,7 @@ export class EventsGateway
   handleDisconnect(client: Socket) {
     console.log(`Client disconnected: ${client.id}`);
     console.log('Room: ' + new Array(...client.rooms).join(' '));
-    client.rooms.forEach((room) => {
-      leaveRoom(room);
-    });
+    disconnect(client.id);
   }
 
   handleConnection(client: Socket) {
@@ -198,7 +194,7 @@ export class EventsGateway
       const exercise = getExercise(room);
       const platform = getPlatform(room);
       if (userId) {
-        datas[userId] = {
+        datas[client.id] = {
           userId,
           startTime: new Date(),
           endTime: new Date(),
@@ -209,9 +205,11 @@ export class EventsGateway
       }
     });
     client.on('leave', (room: string) => {
-      console.log('Room2: ' + new Array(...client.rooms).join(' '));
+      const userId = getId(room);
       client.leave(room);
-      leaveRoom(room);
+      if (userId) {
+        disconnect(client.id);
+      }
     });
   }
 
