@@ -209,6 +209,7 @@ export class EventsGateway
       }
     });
     client.on('leave', (room: string) => {
+      console.log('Room2: ' + new Array(...client.rooms).join(' '));
       client.leave(room);
       leaveRoom(room);
     });
