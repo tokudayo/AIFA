@@ -121,18 +121,13 @@ public class StreamFragment extends Fragment {
     // Websocket
     private static final String OUTPUT_LANDMARKS_STREAM_NAME = "pose_landmarks";
     private Socket mSocket;
-    {
-        try {
-            mSocket = IO.socket("wss://aifa.one");
-        } catch (URISyntaxException e) {
-        }
-    }
 
-    public static StreamFragment newInstance(String exercise) {
+    public static StreamFragment newInstance(String exercise, String socketUrl) {
         StreamFragment streamFragment = new StreamFragment();
     
         Bundle args = new Bundle();
         args.putString("exercise", exercise);
+        args.putString("socketUrl", socketUrl);
         streamFragment.setArguments(args);
     
         return streamFragment;
@@ -159,6 +154,10 @@ public class StreamFragment extends Fragment {
             applicationInfo = getActivity().getPackageManager().getApplicationInfo(getActivity().getPackageName(), PackageManager.GET_META_DATA);
         } catch (NameNotFoundException e) {
             Log.e(TAG, "Cannot find application info: " + e);
+        }
+        try {
+            mSocket = IO.socket(getArguments().getString("socketUrl"));
+        } catch (URISyntaxException e) {
         }
 
         mSocket.connect();

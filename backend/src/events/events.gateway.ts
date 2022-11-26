@@ -186,7 +186,6 @@ export class EventsGateway
     await this.consumer.run({
       eachMessage: async ({ message }) => {
         const res = JSON.parse(message.value.toString());
-        console.log(res, 'Line #189 events.gateway.ts');
         this.server.to(res[0]).emit('alert', res[1]);
       },
     });

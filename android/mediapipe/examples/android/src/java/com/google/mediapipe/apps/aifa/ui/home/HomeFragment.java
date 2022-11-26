@@ -61,11 +61,12 @@ public class HomeFragment extends Fragment {
         final Spinner spinner = view.findViewById(R.id.spinner);
         final Button startButton = view.findViewById(R.id.start);
         final Button stopButton = view.findViewById(R.id.stop);
+        final EditText socketEditText = view.findViewById(R.id.socket);
 
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                frag = StreamFragment.newInstance(values[spinner.getSelectedItemPosition()]);
+                frag = StreamFragment.newInstance(values[spinner.getSelectedItemPosition()], socketEditText.getText().toString());
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
                 spinner.setVisibility(View.INVISIBLE);
                 startButton.setVisibility(View.INVISIBLE);
@@ -74,13 +75,13 @@ public class HomeFragment extends Fragment {
                 ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
                 ft.addToBackStack(null);
                 ft.commit();
-                // loginViewModel.login(apiInterface, usernameEditText.getText().toString());
             }
         });
 
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                frag.onDestroy();
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
                 spinner.setVisibility(View.VISIBLE);
                 startButton.setVisibility(View.VISIBLE);
