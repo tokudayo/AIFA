@@ -99,6 +99,7 @@ public class LoginFragment extends Fragment {
                     SharedPreferences.Editor Ed = sp.edit();
                     Ed.putInt("userId", loginResult.getSuccess().getUserId());
                     Ed.putString("email", loginResult.getSuccess().getDisplayName());
+                    Ed.putString("accessToken", loginResult.getSuccess().getAccessToken());
                     Ed.commit();
                     ((MainActivity)getActivity()).reloadNavbar();
                 }

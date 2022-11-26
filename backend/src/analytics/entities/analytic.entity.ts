@@ -41,4 +41,6 @@ export class AnalyticEntity {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  correct?: string;
 }

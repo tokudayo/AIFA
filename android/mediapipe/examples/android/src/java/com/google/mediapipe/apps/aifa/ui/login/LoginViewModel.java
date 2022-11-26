@@ -49,7 +49,7 @@ public class LoginViewModel extends ViewModel {
                     loginResult.setValue(new LoginResult(R.string.login_failed));
                 } else {
                     AuthResponse user = response.body();
-                    loginResult.setValue(new LoginResult(new LoggedInUserView(user.user.email, user.user.id)));
+                    loginResult.setValue(new LoginResult(new LoggedInUserView(user.user.email, user.user.id, user.accessToken)));
                 }
             }
 

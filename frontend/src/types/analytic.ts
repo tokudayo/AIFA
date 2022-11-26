@@ -6,6 +6,7 @@ export interface Analytic {
   exercise: string;
   platform: string;
   count: object;
+  correct?: string;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -6,11 +6,13 @@ package com.google.mediapipe.apps.aifa.ui.login;
 class LoggedInUserView {
     private String displayName;
     private Integer userId;
+    private String accessToken;
     //... other data fields that may be accessible to the UI
 
-    LoggedInUserView(String displayName, Integer userId) {
+    LoggedInUserView(String displayName, Integer userId, String accessToken) {
         this.displayName = displayName;
         this.userId = userId;
+        this.accessToken = accessToken;
     }
 
     String getDisplayName() {
@@ -19,5 +21,9 @@ class LoggedInUserView {
 
     Integer getUserId() {
         return userId;
+    }
+
+    String getAccessToken() {
+        return accessToken;
     }
 }

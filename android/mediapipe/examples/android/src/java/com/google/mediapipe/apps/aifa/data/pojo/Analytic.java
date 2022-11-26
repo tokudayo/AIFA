@@ -3,22 +3,25 @@ package com.google.mediapipe.apps.aifa.data.pojo;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class User {
+public class Analytic {
     @SerializedName("id")
     @Expose
     public Integer id;
-    @SerializedName("email")
+    @SerializedName("startTime")
     @Expose
-    public String email;
-    @SerializedName("accessToken")
+    public String startTime;
+    @SerializedName("endTime")
     @Expose
-    public String accessToken;
-    @SerializedName("refreshToken")
+    public String endTime;
+    @SerializedName("exercise")
     @Expose
-    public String refreshToken;
-    @SerializedName("password")
+    public String exercise;
+    @SerializedName("platform")
     @Expose
-    public String password;
+    public String platform;
+    @SerializedName("correct")
+    @Expose
+    public String correct;
     @SerializedName("createdAt")
     @Expose
     public String createdAt;

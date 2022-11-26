@@ -37,7 +37,8 @@ public class MainActivity extends AppCompatActivity {
                   R.id.nav_home, 
                   R.id.nav_login, 
                   R.id.nav_signup,
-                  R.id.nav_logout
+                  R.id.nav_logout,
+                  R.id.nav_analytic
                 )
                 .setDrawerLayout(drawer)
                 .build();
@@ -60,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
             menu.findItem(R.id.nav_login).setVisible(true);
             menu.findItem(R.id.nav_signup).setVisible(true);
             menu.findItem(R.id.nav_logout).setVisible(false);
+            menu.findItem(R.id.nav_analytic).setVisible(false);
 
             navController.navigate(R.id.nav_login);
         } else {
@@ -67,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
             menu.findItem(R.id.nav_login).setVisible(false);
             menu.findItem(R.id.nav_signup).setVisible(false);
             menu.findItem(R.id.nav_logout).setVisible(true);
+            menu.findItem(R.id.nav_analytic).setVisible(true);
 
             navController.navigate(R.id.nav_home);
         }

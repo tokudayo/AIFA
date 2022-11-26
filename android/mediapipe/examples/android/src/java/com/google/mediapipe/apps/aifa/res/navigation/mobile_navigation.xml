@@ -16,6 +16,11 @@
         android:name="com.google.mediapipe.apps.aifa.ui.login.LoginFragment"
         android:label="@string/menu_login"
         tools:layout="@layout/fragment_login" />
+    <fragment
+        android:id="@+id/nav_analytic"
+        android:name="com.google.mediapipe.apps.aifa.ui.analytic.AnalyticFragment"
+        android:label="@string/menu_analytic"
+        tools:layout="@layout/fragment_analytic" />
 
     <fragment
         android:id="@+id/nav_logout"
@@ -28,4 +33,6 @@
         android:name="com.google.mediapipe.apps.aifa.ui.signup.SignupFragment"
         android:label="@string/menu_signup"
         tools:layout="@layout/fragment_signup" />
+
+
 </navigation>

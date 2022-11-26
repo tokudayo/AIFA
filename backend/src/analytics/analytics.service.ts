@@ -5,6 +5,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AnalyticEntity } from './entities/analytic.entity';
 
+const sumValues = (obj: object) =>
+  Object.values(obj).reduce((a: number, b: number) => a + b, 0);
+
 @Injectable()
 export class AnalyticsService {
   constructor(
@@ -47,9 +50,22 @@ export class AnalyticsService {
   }
 
   async findByUserId(userId: number): Promise<AnalyticEntity[]> {
-    return this.analyticRepository
+    const analytics = await this.analyticRepository
       .createQueryBuilder('analytics')
       .where('analytics."userId" = :userId', { userId })
       .getMany();
+    return analytics.map((analytic) => ({
+      ...analytic,
+      exercise:
+        analytic.exercise === 'shoulder_press'
+          ? 'Shoulder Press'
+          : analytic.exercise === 'deadlift'
+          ? 'Deadlift'
+          : 'Hammer Curl',
+      platform: analytic.platform === 'web' ? 'Web' : 'Android',
+      correct: `${(analytic.count as any).Correct || 0}/${sumValues(
+        analytic.count,
+      )}`,
+    }));
   }
 }
