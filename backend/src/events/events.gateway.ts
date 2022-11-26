@@ -80,6 +80,8 @@ export class EventsGateway
 
   async sendLandmark(client: Socket, data: any) {
     data.room = getRoomPayload(client);
+    console.log(data.room, 'Line #83 events.gateway.ts');
+    
     if (!data.room) {
       return;
     }
