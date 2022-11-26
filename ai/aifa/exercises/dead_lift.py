@@ -78,7 +78,7 @@ class DeadLift(BatchSamplingExercise):
         if not check_perpendicular_limb(right_hand, xaxis, allowed_error=10.):
             msg_list.append("Keep your right hand straight.")
 
-        return msg_list
+        return ' '.join(msg_list)
 
     @property
     def state(self):

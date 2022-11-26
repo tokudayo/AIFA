@@ -45,9 +45,9 @@ class ShoulderPress(BatchSamplingExercise):
         # Keep the wrist to elbow part perpendicular to the ground at all times
         la_arm = window.joint_vector_series('left_wrist', 'left_elbow')
         ra_arm = window.joint_vector_series('right_wrist', 'right_elbow')
-        if not check_perpendicular_limb(limb = la_arm, allowed_error=10.):
+        if not check_perpendicular_limb(limb = la_arm, allowed_error=20.):
             msg_list.append("Upper left arm must be straight.")
-        if not check_perpendicular_limb(limb = ra_arm, allowed_error=10.):
+        if not check_perpendicular_limb(limb = ra_arm, allowed_error=20.):
             msg_list.append("Upper right arm must be straight.")
 
         # When at the top

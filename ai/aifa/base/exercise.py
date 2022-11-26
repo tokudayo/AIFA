@@ -43,8 +43,8 @@ class BatchSamplingExercise(Exercise):
         if len(self.series.data) % self.window_size == self.window_size - 1:
             result = self.evaluation()
             self.prev_state = self.state
+            self.prev_window = self.window
             # Experimental
             self.prev_direction = self.stateSeries.max()
             self.stateSeries.update(self.state)
-            self.prev_window = self.window
             return result

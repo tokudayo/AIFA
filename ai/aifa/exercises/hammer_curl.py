@@ -80,7 +80,7 @@ class HammerCurl(BatchSamplingExercise):
             right_forearm =  window.joint_vector_series('right_elbow', 'right_wrist')
             if not is_perpendicular(right_forearm, xaxis, allowed_error=self.straight_arm_threshold):
                 msg_list.append("Bring the weights on your left hand down fully.")
-        return msg_list
+        return ' '.join(msg_list)
 
     @property
     def state(self):
