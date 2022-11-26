@@ -17,6 +17,7 @@ type MapAnalyticsService = {
   [clientId: string]: CreateAnalyticDto;
 };
 const datas: MapAnalyticsService = {};
+const sockets = {};
 
 function getRoomPayload(client: Socket) {
   let roomRep = null;
@@ -194,6 +195,7 @@ export class EventsGateway
       const exercise = getExercise(room);
       const platform = getPlatform(room);
       if (userId) {
+        sockets[userId] = client.id;
         datas[client.id] = {
           userId,
           startTime: new Date(),
@@ -246,10 +248,10 @@ export class EventsGateway
         this.server.to(res[0]).emit('alert', res[1]);
         const userId = getId(res[0]);
         const alert = res[1] == '' ? 'Correct' : res[1];
-        if (!datas[userId].count[alert]) {
-          datas[userId].count[alert] = 0;
+        if (!datas[sockets[userId]].count[alert]) {
+          datas[sockets[userId]].count[alert] = 0;
         }
-        ++datas[userId].count[alert];
+        ++datas[sockets[userId]].count[alert];
       },
     });
   }
