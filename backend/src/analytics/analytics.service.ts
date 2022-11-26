@@ -70,7 +70,7 @@ export class AnalyticsService {
       startTime: new Date(analytic.startTime).toLocaleString('en-GB', {
         timeZone: 'Asia/Jakarta',
       }),
-      endTime: new Date(analytic.startTime).toLocaleString('en-GB', {
+      endTime: new Date(analytic.endTime).toLocaleString('en-GB', {
         timeZone: 'Asia/Jakarta',
       }),
     }));
