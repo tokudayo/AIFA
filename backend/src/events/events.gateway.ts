@@ -247,7 +247,7 @@ export class EventsGateway
         const res = JSON.parse(message.value.toString());
         this.server.to(res[0]).emit('alert', res[1]);
         const userId = getId(res[0]);
-        if (sockets[userId]) {
+        if (sockets[userId] && datas[sockets[userId]]) {
           const alert = res[1] == '' ? 'Correct' : res[1];
           if (!datas[sockets[userId]].count[alert]) {
             datas[sockets[userId]].count[alert] = 0;
