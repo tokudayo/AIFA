@@ -1,4 +1,4 @@
-export interface Analytic {
+export class AnalyticResponseDto {
   id: number;
   startTime: string;
   endTime: string;

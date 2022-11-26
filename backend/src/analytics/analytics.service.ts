@@ -4,6 +4,7 @@ import { Response } from 'src/shares/interceptors/response.interceptor';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AnalyticEntity } from './entities/analytic.entity';
+import { AnalyticResponseDto } from './dto/analytic-response.dto';
 
 const sumValues = (obj: object) =>
   Object.values(obj).reduce((a: number, b: number) => a + b, 0);
@@ -49,13 +50,13 @@ export class AnalyticsService {
     await this.analyticRepository.delete(id);
   }
 
-  async findByUserId(userId: number): Promise<AnalyticEntity[]> {
+  async findByUserId(userId: number): Promise<AnalyticResponseDto[]> {
     const analytics = await this.analyticRepository
       .createQueryBuilder('analytics')
       .where('analytics."userId" = :userId', { userId })
       .getMany();
     return analytics.map((analytic) => ({
-      ...analytic,
+      id: analytic.id,
       exercise:
         analytic.exercise === 'shoulder_press'
           ? 'Shoulder Press'
@@ -66,6 +67,12 @@ export class AnalyticsService {
       correct: `${(analytic.count as any).Correct || 0}/${sumValues(
         analytic.count,
       )}`,
+      startTime: new Date(analytic.startTime).toLocaleString('en-GB', {
+        timeZone: 'Asia/Jakarta',
+      }),
+      endTime: new Date(analytic.startTime).toLocaleString('en-GB', {
+        timeZone: 'Asia/Jakarta',
+      }),
     }));
   }
 }

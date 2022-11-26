@@ -27,8 +27,8 @@ export default function Analytics() {
         >
           <p>Platform: {analytic.platform}</p>
           <p>Correct: {analytic.correct}</p>
-          <p>Start Time: {new Date(analytic.startTime).toLocaleString()}</p>
-          <p>End Time: {new Date(analytic.endTime).toLocaleString()}</p>
+          <p>Start Time: {analytic.startTime}</p>
+          <p>End Time: {analytic.endTime}</p>
         </Card>
       ))}
     </>
