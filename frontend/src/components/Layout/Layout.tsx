@@ -65,7 +65,7 @@ const Layout = () => {
             } else if (e.key === "2") {
               navigate("/index/camera");
             } else if (e.key === "3") {
-              navigate("/index/analytics");
+              navigate("/index/history");
             } else if (e.key === "4") {
               dispatch(logout());
             }
@@ -89,7 +89,7 @@ const Layout = () => {
             },
             {
               icon: AlignLeftOutlined,
-              label: "Analytics",
+              label: "History",
             },
             {
               icon: LogoutOutlined,

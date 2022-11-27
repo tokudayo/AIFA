@@ -12,7 +12,7 @@
     <string name="menu_login">Login</string>
     <string name="menu_logout">Logout</string>
     <string name="menu_signup">Sign up</string>
-    <string name="menu_analytic">Analytic</string>
+    <string name="menu_analytic">History</string>
 
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>

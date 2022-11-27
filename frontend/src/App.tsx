@@ -30,7 +30,7 @@ const router = createBrowserRouter([
         element: <CameraStreamCapture />,
       },
       {
-        path: "/index/analytics",
+        path: "/index/history",
         element: <Analytics />,
       },
     ],
