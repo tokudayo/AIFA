@@ -74,7 +74,7 @@ const Layout = () => {
           selectedKeys={[
             location.pathname.includes("camera")
               ? "2"
-              : location.pathname.includes("analytics")
+              : location.pathname.includes("history")
               ? "3"
               : "1",
           ]}
