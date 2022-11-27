@@ -26,24 +26,30 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
+                android:padding="15dp"
                 android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/exercise"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
                     android:text="Exercise"
 
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textSize="15sp" />
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:layout_marginBottom="5dp"
+                    android:background="#c0c0c0"/>
 
                 <TextView
                     android:id="@+id/platform"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
                     android:layout_marginTop="5dp"
                     android:text="Platform"
 
@@ -54,7 +60,6 @@
                     android:id="@+id/correct"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
                     android:layout_marginTop="5dp"
                     android:text="Correct"
 
@@ -65,7 +70,6 @@
                     android:id="@+id/start_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
                     android:layout_marginTop="5dp"
                     android:text="Start Time"
 
@@ -76,7 +80,6 @@
                     android:id="@+id/end_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
                     android:layout_marginTop="5dp"
                     android:text="End Time"
 

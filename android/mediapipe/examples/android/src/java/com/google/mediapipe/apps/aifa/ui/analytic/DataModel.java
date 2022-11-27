@@ -13,10 +13,10 @@ public class DataModel {
                      String startTime,
                      String endTime) {
         this.exercise = exercise;
-        this.platform = platform;
-        this.correct = correct;
-        this.startTime = startTime;
-        this.endTime = endTime;
+        this.platform = "Platform: " + platform;
+        this.correct = "Correct: " + correct;
+        this.startTime = "Start Time: " + startTime;
+        this.endTime = "End Time: " + endTime;
     }
 
     public String getCorrect() {
