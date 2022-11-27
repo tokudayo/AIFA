@@ -90,11 +90,6 @@ public class LoginFragment extends Fragment {
                 }
                 if (loginResult.getSuccess() != null) {
                     updateUiWithUser(loginResult.getSuccess());
-                    NavigationView navigationView = getActivity().findViewById(R.id.nav_view);
-                    View headerView = navigationView.getHeaderView(0);
-                    TextView textView = headerView.findViewById(R.id.textView);
-                    textView.setText(loginResult.getSuccess().getDisplayName());
-
                     SharedPreferences sp = getActivity().getSharedPreferences("Login", 0);
                     SharedPreferences.Editor Ed = sp.edit();
                     Ed.putInt("userId", loginResult.getSuccess().getUserId());

@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.Menu;
 import android.util.Log;
+import android.widget.TextView;
 import android.content.SharedPreferences;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -73,6 +74,10 @@ public class MainActivity extends AppCompatActivity {
 
             navController.navigate(R.id.nav_home);
         }
+
+        View headerView = navigationView.getHeaderView(0);
+        TextView textView = headerView.findViewById(R.id.textView);
+        textView.setText(email);
     }
 
     @Override

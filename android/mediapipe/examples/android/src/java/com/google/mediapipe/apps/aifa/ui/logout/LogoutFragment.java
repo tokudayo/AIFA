@@ -47,11 +47,6 @@ public class LogoutFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         super.onActivityCreated(savedInstanceState);
 
-        NavigationView navigationView = getActivity().findViewById(R.id.nav_view);
-        View headerView = navigationView.getHeaderView(0);
-        TextView textView = headerView.findViewById(R.id.textView);
-        textView.setText("");
-
         SharedPreferences sp = this.getContext().getSharedPreferences("Login", 0);
         SharedPreferences.Editor Ed = sp.edit();
         Ed.putInt("userId", 0);
