@@ -123,7 +123,7 @@ const Layout = () => {
             }}
           >
             <>
-              {!location.pathname.includes("analytics") && (
+              {!location.pathname.includes("history") && (
                 <>
                   {alert === "Ready" && (
                     <Alert
