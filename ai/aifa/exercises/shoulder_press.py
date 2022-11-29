@@ -35,12 +35,13 @@ class ShoulderPress(BatchSamplingExercise):
         if verbose: print(f"STATE: {state}, LAST FAULT: {self.last_fault}")
 
         # check if body is straight
-        left_upright = window.joint_vector_series('left_shoulder', 'left_hip')
-        right_upright = window.joint_vector_series('right_shoulder', 'right_hip')
-        if not check_perpendicular_limb(left_upright, xaxis, allowed_error=10.):
-            msg_list.append("Keep your left side straight")
-        if not check_perpendicular_limb(right_upright, xaxis, allowed_error=10.):
-            msg_list.append("Keep your right side straight")
+        # To be reworked later
+        # left_upright = window.joint_vector_series('left_shoulder', 'left_hip')
+        # right_upright = window.joint_vector_series('right_shoulder', 'right_hip')
+        # if not check_perpendicular_limb(left_upright, xaxis, allowed_error=10.):
+        #     msg_list.append("Keep your left side straight")
+        # if not check_perpendicular_limb(right_upright, xaxis, allowed_error=10.):
+        #     msg_list.append("Keep your right side straight")
         
         # Keep the wrist to elbow part perpendicular to the ground at all times
         la_arm = window.joint_vector_series('left_wrist', 'left_elbow')
@@ -56,10 +57,10 @@ class ShoulderPress(BatchSamplingExercise):
             lb_arm =  window.joint_vector_series('left_elbow', 'left_shoulder')
             rb_arm =  window.joint_vector_series('right_elbow', 'right_shoulder')
             # Keep the elbow to shoulder part to the side, but slightly to the front
-            if not check_perpendicular_limb(limb = lb_arm, allowed_error=20.):
+            if not check_perpendicular_limb(limb = lb_arm, allowed_error=32.):
                 msg_list.append("Extend your left arm fully at the top.")
                 self.last_fault = 'top'
-            elif not check_perpendicular_limb(limb = rb_arm, allowed_error=20.):
+            elif not check_perpendicular_limb(limb = rb_arm, allowed_error=32.):
                 msg_list.append("Extend your right arm fully at the top.")
                 self.last_fault = 'top'
             else:
@@ -69,14 +70,30 @@ class ShoulderPress(BatchSamplingExercise):
         if state != self.prev_state and self.prev_state == 'down':
             #if verbose: print("At the bottom.")
         # Keep the elbow to shoulder part to the side, only slightly to the front
-            lb_arm =  window.joint_vector_series('left_elbow', 'left_shoulder')
-            rb_arm =  window.joint_vector_series('right_elbow', 'right_shoulder')
-            if not check_perpendicular_limb(limb = lb_arm, target = yaxis, allowed_error=20.):
-                msg_list.append("Keep your left arm to the side.")
+            # lb_arm =  window.joint_vector_series('left_elbow', 'left_shoulder')
+            # rb_arm =  window.joint_vector_series('right_elbow', 'right_shoulder')
+            # if not check_perpendicular_limb(limb = lb_arm, target = yaxis, allowed_error=20.):
+            #     msg_list.append("Keep your left arm to the side.")
+            #     self.last_fault = 'bottom'
+            # if not check_perpendicular_limb(limb = rb_arm, target = yaxis, allowed_error=20.):
+            #     msg_list.append("Keep your right arm to the side.")
+            #     self.last_fault = 'bottom'
+
+            
+            # Check if elbow go below the shoulder by comparing the y coordinate
+            elbows = window.kp_series('left_elbow', 'right_elbow')
+            shoulders = window.kp_series('left_shoulder', 'right_shoulder')
+            # Add a small margin to the comparison
+            h = (window.joint_vector_series('left_shoulder', 'left_hip').magnitude + window.joint_vector_series('right_shoulder', 'right_hip').magnitude) / 2
+            h = np.sum(h) / h.shape
+            margin = h * 0.02
+            # Since the y axis is pointing down: the higher the y coordinate, the lower the joint
+            # for joint a to be below joint b, y coordinate of a must be higher than y coordinate of b
+            if (elbows[-1, :, 1] < shoulders[-1, :, 1] - margin).any():
+                msg_list.append("Go down more at the bottom.")
                 self.last_fault = 'bottom'
-            if not check_perpendicular_limb(limb = rb_arm, target = yaxis, allowed_error=20.):
-                msg_list.append("Keep your right arm to the side.")
-                self.last_fault = 'bottom'
+            else:
+                self.last_fault = None
         return ' '.join(msg_list)
 
     @property
