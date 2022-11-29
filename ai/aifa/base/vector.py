@@ -60,6 +60,12 @@ class Vector(object):
         in `self` and N is the number of vectors in `other`.
         """
         return np.arccos(self.unit_v@other.unit_v.T)
+    
+    def add (self, other: 'Vector'):
+        return self.__add__(other)
+
+    def __add__(self, other: 'Vector'):
+        return Vector(self.data + other.data)
 
     def __repr__(self) -> str:
         return f'Vector({self.name}, {self.data})'

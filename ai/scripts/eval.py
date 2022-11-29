@@ -6,17 +6,21 @@ from aifa.base.pose import Pose
 from aifa.utils import Timer
 from aifa.inputs import Cv2VideoStream, Cv2WebcamStream
 from aifa.models import BlazePose
-from aifa.exercises import ShoulderPress, HammerCurl
+from aifa.exercises import ShoulderPress, HammerCurl, DeadLift
+
+def draw_line_cv2(img, p1, p2, color=(0, 255, 0), thickness=2):
+    cv2.line(img, (int(p1[0]), int(p1[1])), (int(p2[0]), int(p2[1])), color, thickness)
+
 
 class AIFlow(object):
     def __init__(self):
-        self.input = Cv2VideoStream("videos/hc/o4.mp4", max_size=720)
-        # self.input = Cv2WebcamStream()
+        #self.input = Cv2VideoStream("videos/deadlift/deadlift 2.mp4", max_size=720)
+        self.input = Cv2WebcamStream()
         # self.model = DummyHpeModel()
         self.model = BlazePose(complexity=1, static_mode=False)
         # Experimental
         #self.evaluator = exp_ShoulderPress()
-        self.evaluator = HammerCurl()
+        self.evaluator = DeadLift()
 
     def start(self):
         self.thread = Thread(target=self.run)
