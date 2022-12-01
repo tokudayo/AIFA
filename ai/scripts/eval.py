@@ -6,7 +6,8 @@ from aifa.base.pose import Pose
 from aifa.utils import Timer
 from aifa.inputs import Cv2VideoStream, Cv2WebcamStream
 from aifa.models import BlazePose
-from aifa.exercises import ShoulderPress, HammerCurl
+from aifa.exercises import ShoulderPress, HammerCurl, DeadLift
+
 
 class AIFlow(object):
     def __init__(self, count: int = 1):
@@ -17,7 +18,7 @@ class AIFlow(object):
         self.model = BlazePose(complexity=1, static_mode=False)
         # Experimental
         #self.evaluator = exp_ShoulderPress()
-        self.evaluator = HammerCurl()
+        self.evaluator = ShoulderPress()
 
     def start(self):
         self.thread = Thread(target=self.run)

@@ -34,48 +34,58 @@ class DeadLift(BatchSamplingExercise):
         window = self.lastest_window()
         msg_list = []
         if verbose: print(f"STATE: {state}, LAST FAULT: {self.last_fault}")
-        # check if body is straight
-        left_upright = window.joint_vector_series('left_shoulder', 'left_hip')
-        right_upright = window.joint_vector_series('right_shoulder', 'right_hip')
-        if not check_perpendicular_limb(left_upright, xaxis, allowed_error=10.):
-            msg_list.append("Keep your left side straight")
-        if not check_perpendicular_limb(right_upright, xaxis, allowed_error=10.):
-            msg_list.append("Keep your right side straight")
 
-        # check if legs are straight with the ground 
-        left_leg = window.joint_vector_series('left_ankle', 'left_knee')
-        right_leg = window.joint_vector_series('right_ankle', 'right_knee')
-        if not check_perpendicular_limb(left_leg, xaxis, allowed_error=10.):
-            msg_list.append("Keep your left leg straight.")
-        if not check_perpendicular_limb(right_leg, xaxis, allowed_error=10.):
-            msg_list.append("Keep your right leg straight.")
+
+        # check if body is straight
+        torso = window.joint_vector_series('left_shoulder', 'left_hip').add(window.joint_vector_series('right_shoulder', 'right_hip'))
+        if not check_perpendicular_limb(torso, xaxis, allowed_error=10.):
+            msg_list.append("Keep your torso straight.")
+
+
+        # Straight leg check - might be rudundant, removed for now
+        # left_leg = window.joint_vector_series('left_ankle', 'left_knee')
+        # right_leg = window.joint_vector_series('right_ankle', 'right_knee')
+        # if not check_perpendicular_limb(left_leg, xaxis, allowed_error=15.):
+        #     msg_list.append("Keep your left leg straight.")
+        # if not check_perpendicular_limb(right_leg, xaxis, allowed_error=15.):
+        #     msg_list.append("Keep your right leg straight.")
         
-        # check if legs are too wide or too narrow
+        # Stance check
         hip_length = window.joint_vector_series('left_hip', 'right_hip').magnitude.mean()
         ankle_length = window.joint_vector_series('left_ankle', 'right_ankle').magnitude.mean()
-        if ankle_length > hip_length:
+        if ankle_length > hip_length*2.35:
             msg_list.append("Keep your legs closer together.")
-        elif ankle_length < hip_length/2:
+        elif ankle_length < hip_length:
             msg_list.append("Keep your legs wider apart.")
         
-        # check if grip is too wide or too narrow
+        # Grip check
         shoulder_width = window.joint_vector_series('left_shoulder', 'right_shoulder').magnitude.mean()
         grip_width = window.joint_vector_series('left_wrist', 'right_wrist').magnitude.mean()
-        if grip_width > shoulder_width:
+        if grip_width > shoulder_width*1.85:
             msg_list.append("Keep your grip closer together.")
-        elif grip_width < shoulder_width/2:
+        elif grip_width < shoulder_width*1.1:
             msg_list.append("Keep your grip wider apart.")
         
-        # Check if squatting/sitting - In this case, we are checking if the hip to knee vector is "visible"
-        # To be implemented.
+        # Check if squatting/sitting
+        hips = window.kp_series('left_hip', 'right_hip').data
+        knees = window.kp_series('left_knee', 'right_knee').data
+        h = (window.joint_vector_series('left_ankle', 'left_knee').magnitude + window.joint_vector_series('right_ankle', 'right_knee').magnitude) / 2
+        h = np.sum(h) / h.shape
+        margin = h * 0.25
+        #print((hips[-1, :, 1] >= knees[-1, :, 1] - margin).any())
+        if (hips[-1, :, 1] >= knees[-1, :, 1] - margin).any():
+            msg_list.append("Don't drop hip down too much.")
         
         # Check if hand is somewhat straight
-        # Might be redundant (more on this later)
-        left_hand = window.joint_vector_series('left_wrist', 'left_elbow')
-        right_hand = window.joint_vector_series('right_wrist', 'right_elbow')
-        if not check_perpendicular_limb(left_hand, xaxis, allowed_error=10.):
+        # To be optimized later, code is a bit messy but it works
+        left_shoulder_to_wrist = window.joint_vector_series('left_wrist', 'left_shoulder')
+        right_shoulder_to_wrist = window.joint_vector_series('right_wrist', 'right_shoulder')
+        left_shoulder_to_elbow = window.joint_vector_series('left_elbow', 'left_shoulder')
+        right_shoulder_to_elbow = window.joint_vector_series('right_elbow', 'right_shoulder')
+        # check angle between shoulder to wrist and shoulder to elbow
+        if left_shoulder_to_wrist.angle(left_shoulder_to_elbow).min() > deg_to_rad(15):
             msg_list.append("Keep your left hand straight.")
-        if not check_perpendicular_limb(right_hand, xaxis, allowed_error=10.):
+        if right_shoulder_to_wrist.angle(right_shoulder_to_elbow).min() > deg_to_rad(15):
             msg_list.append("Keep your right hand straight.")
 
         return ' '.join(msg_list)
