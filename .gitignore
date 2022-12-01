@@ -130,8 +130,6 @@ dmypy.json
 # Misc
 .bat
 
-*.mp4
-test.py
 .vscode
 backup
 ai/data
