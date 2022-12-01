@@ -38,13 +38,13 @@ class HammerCurl(BatchSamplingExercise):
         msg_list = []
         # if verbose: print(f"STATE: {self.state}, P_STATE: {self.prev_state}")
 
-        # # check if body is straight
-        # left_upright = window.joint_vector_series('left_shoulder', 'left_hip')
-        # right_upright = window.joint_vector_series('right_shoulder', 'right_hip')
-        # if not check_perpendicular_limb(left_upright, xaxis, allowed_error=10.):
-        #     msg_list.append("Keep your left side straight")
-        # if not check_perpendicular_limb(right_upright, xaxis, allowed_error=10.):
-        #     msg_list.append("Keep your right side straight")
+        # check if body is straight
+        left_upright = window.joint_vector_series('left_shoulder', 'right_shoulder')
+        right_upright = window.joint_vector_series('left_hip', 'right_hip')
+        if not is_perpendicular(left_upright, yaxis, allowed_error=10.):
+            msg_list.append("Keep your left side straight")
+        if not is_perpendicular(right_upright, yaxis, allowed_error=10.):
+            msg_list.append("Keep your right side straight")
         
         la_arm = window.joint_vector_series('left_shoulder', 'left_elbow')
         ra_arm = window.joint_vector_series('right_shoulder', 'right_elbow')
