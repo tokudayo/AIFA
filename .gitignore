@@ -134,3 +134,4 @@ dmypy.json
 test.py
 .vscode
 backup
+ai/data
