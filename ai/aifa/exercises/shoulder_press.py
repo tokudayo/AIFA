@@ -57,10 +57,10 @@ class ShoulderPress(BatchSamplingExercise):
             lb_arm =  window.joint_vector_series('left_elbow', 'left_shoulder')
             rb_arm =  window.joint_vector_series('right_elbow', 'right_shoulder')
             # Keep the elbow to shoulder part to the side, but slightly to the front
-            if not check_perpendicular_limb(limb = lb_arm, allowed_error=32.):
+            if not check_perpendicular_limb(limb = lb_arm, allowed_error=40.):
                 msg_list.append("Extend your left arm fully at the top.")
                 self.last_fault = 'top'
-            elif not check_perpendicular_limb(limb = rb_arm, allowed_error=32.):
+            elif not check_perpendicular_limb(limb = rb_arm, allowed_error=40.):
                 msg_list.append("Extend your right arm fully at the top.")
                 self.last_fault = 'top'
             else:

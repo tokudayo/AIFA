@@ -8,4 +8,7 @@ class DummyHpeModel(HpeModel):
         pass
 
     def forward(self, *args, **kwargs):
-        return np.random.rand(17, 3)
+        return np.random.rand(18, 4)
+
+    def postprocess(self, *args, **kwargs):
+        return np.random.rand(18, 4)
