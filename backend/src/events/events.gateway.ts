@@ -219,25 +219,6 @@ export class EventsGateway
   }
 
   async onModuleInit() {
-    const fps = 10;
-    function onPull(socket, buf) {
-      if (buf) {
-        socket.to('camera').emit('image', buf);
-        appsink.pull(onPull.bind(null, socket));
-      } else {
-        console.log('NULL BUFFER');
-        setTimeout(() => appsink.pull(onPull.bind(null, socket)), 1000 / fps);
-      }
-    }
-
-    const pipeline = new gstreamer.Pipeline(
-      `rtspsrc location=${process.env.RTSP_URL} ! queue ! rtph264depay ! h264parse ! avdec_h264 ! videoconvert ! video/x-raw,framerate=${fps}/1 ! jpegenc quality=50 ! appsink name=sink`,
-    );
-    const appsink = pipeline.findChild('sink');
-
-    pipeline.play();
-    appsink.pull(onPull.bind(null, this.server));
-
     // KAFKA
     await this.producer.connect();
     await this.consumer.connect();
@@ -259,6 +240,24 @@ export class EventsGateway
         }
       },
     });
+
+    const fps = 10;
+    function onPull(socket, buf) {
+      if (buf) {
+        socket.to('camera').emit('image', buf);
+        appsink.pull(onPull.bind(null, socket));
+      } else {
+        console.log('NULL BUFFER');
+        setTimeout(() => appsink.pull(onPull.bind(null, socket)), 1000 / fps);
+      }
+    }
+
+    const pipeline = new gstreamer.Pipeline(
+      `rtspsrc location=${process.env.RTSP_URL} latency=50 ! queue ! rtph264depay ! h264parse ! avdec_h264 ! videoconvert ! video/x-raw,framerate=${fps}/1 ! jpegenc ! appsink name=sink`,
+    );
+    const appsink = pipeline.findChild('sink');
+    pipeline.play();
+    appsink.pull(onPull.bind(null, this.server));
   }
 
   async onModuleDestroy() {

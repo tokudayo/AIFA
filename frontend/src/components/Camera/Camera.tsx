@@ -75,8 +75,8 @@ const CameraStreamCapture = () => {
           data: results.poseLandmarks,
           exercise: exercise,
           date: Date.now(),
-          width: 1209,
-          height: 680,
+          width: 1067,
+          height: 600,
         });
       }
       canvasCtx.restore();
@@ -137,14 +137,14 @@ const CameraStreamCapture = () => {
       <div style={!isStreaming ? { display: "none" } : {}}>
         <canvas
           className="input_canvas"
-          width="1209px"
-          height="680px"
+          width="1067px"
+          height="600px"
           hidden
         ></canvas>
         <canvas
           className="output_canvas"
-          width="1209px"
-          height="680px"
+          width="1067px"
+          height="600px"
         ></canvas>
       </div>
       {!isStreaming && (
