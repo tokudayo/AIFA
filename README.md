@@ -113,7 +113,7 @@ We provided a demo video for the software. Please refer to the [Demo Video](http
 <!-- LICENSE -->
 ## License
 
-Distributed under the **AAAAAAA** License. See `LICENSE.txt` for more information.
+Distributed under the **BSD 3-Clause License** License. See `LICENSE` for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
