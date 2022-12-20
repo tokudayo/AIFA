@@ -47,7 +47,7 @@ class BatchSamplingExercise(Exercise):
             window = self.lastest_window()
             filtered_window = []
             for i in range(self.window_size):
-                p = window[i]
+                p = Pose(window[i])
                 if p.similar_to(self.default_pose):
                     filtered_window.append(p)
             if len(filtered_window) <= int(self.window_size * 0.5):

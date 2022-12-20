@@ -128,7 +128,7 @@ class PoseSeries(object):
                 self.data = np.vstack(np.array(poses))
 
     def __getitem__(self, slice):
-        return Pose(self.data[slice])
+        return self.data[slice]
 
     def kp_series(self, *key: List[str]):
         """
