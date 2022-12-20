@@ -20,7 +20,7 @@ class ShoulderPress(BatchSamplingExercise):
     def __init__(self, window_size: int = 10,):
         super().__init__(window_size)
 
-    def evaluation(self, verbose=True):
+    def evaluation(self, window, verbose=True):
         """
         Evaluate current state. Emits messages if fault is detected. User must fix the fault first before the next evaluation.
         Rules for this exercise:
@@ -30,7 +30,7 @@ class ShoulderPress(BatchSamplingExercise):
         3. Keep body straight. (TBI)
         """
         state = self.state
-        window = self.lastest_window()
+        # window = self.lastest_window()
         msg_list = []
         if verbose: print(f"STATE: {state}, LAST FAULT: {self.last_fault}")
 

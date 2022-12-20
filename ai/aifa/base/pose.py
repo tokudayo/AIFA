@@ -1,32 +1,40 @@
+import math
 from typing import List, Optional
 import numpy as np
 
 from aifa.base.vector import Vector
+from aifa.utils import rad_to_deg
 from aifa.utils.anno import coco_anno_list as kps_anno
 
-
-body_parts = {
-    'shoulders': ('left_shoulder', 'right_shoulder'),
-    'left_side': ('left_shoulder', 'left_hip'),
-    'right_side': ('right_shoulder', 'right_hip'),
-    'left_arm': ('left_shoulder', 'left_elbow'),
-    'right_arm': ('right_shoulder', 'right_elbow'),
-    'left_forearm': ('left_elbow', 'left_wrist'),
-    'right_forearm': ('right_elbow', 'right_wrist'),
-    'hips': ('left_hip', 'right_hip'),
-    'left_leg': ('left_hip', 'left_knee'),
-    'right_leg': ('right_hip', 'right_knee'),
-    'left_calf': ('left_knee', 'left_ankle'),
-    'right_calf': ('right_knee', 'right_ankle'),
+lines = {
+    'lr_shoulder': ['left_shoulder', 'right_shoulder'],
+    'l_side': ['left_shoulder', 'left_hip'],
+    'r_side': ['right_shoulder', 'right_hip'],
+    'lr_hip': ['left_hip', 'right_hip'],
+    'l_forearm': ['left_elbow', 'left_wrist'],
+    'r_forearm': ['right_elbow', 'right_wrist'],
+    'l_arm': ['left_shoulder', 'left_elbow'],
+    'r_arm': ['right_shoulder', 'right_elbow'],
+    'l_thigh': ['left_hip', 'left_knee'],
+    'r_thigh': ['right_hip', 'right_knee'],
+    'l_calf': ['left_knee', 'left_ankle'],
+    'r_calf': ['right_knee', 'right_ankle'],
 }
-
-
-# Move this to somewhere else
-angles = [
-    ('shoulders', 'left_side'), ('shoulders', 'right_side'),
-    ('left_side', 'hips'), ('right_side', 'hips'),
+default_angles = [
+    ['lr_shoulder', 'l_side'],
+    ['lr_shoulder', 'r_side'],
+    ['l_side', 'lr_hip'],
+    ['r_side', 'lr_hip']
 ]
-
+default_ratios = [
+    ['lr_shoulder', 'lr_hip'],
+    ['l_side', 'r_side'],
+    ['l_side', 'lr_hip'],
+]
+default_template = {
+    'angles': default_angles,
+    'ratio': default_ratios,
+}
 
 class Pose(object):
     def __init__(self, kps: List[List[float]], frame_w: int = None, frame_h: int = None):
@@ -46,14 +54,24 @@ class Pose(object):
     def __getitem__(self, key: str):
         return self.data[kps_anno.index(key)]
 
-    def kp_vector(self, key1: str, key2: str):
+    def kp_vector(self, key1: str, key2: str = None):
         """
         Returns a vector between two keypoints by name.
         """
-        return Vector(self[key1][..., :3], self[key2][..., :3])
+        if key2 is not None:
+            return Vector(self[key1][..., :3], self[key2][..., :3])
+        else:
+            n1, n2 = lines[key1]
+            return Vector(self[n1][..., :3], self[n2][..., :3])
 
-    def skeletal_angle_similarity(self, other: 'Pose', angles: List[List[str]]):
-        pass
+    def angle(self, key1: str, key2: str = None, key3: str = None):
+        if key3 is None:
+            if key1 not in lines or key2 not in lines:
+                raise ValueError(f'Invalid angle: {key1}')
+            else:
+                v1 = self.kp_vector(*lines[key1])
+                v2 = self.kp_vector(*lines[key2])
+                return v1.angle(v2)
 
     def similarity(self, other: 'Pose', template: str = '', **kwargs):
         """
@@ -73,7 +91,24 @@ class Pose(object):
 
     def __repr__(self):
         return f'Pose({self.data})'
-
+    
+    def similar_to(self, p2, template=default_template, max_angle_diff=30, max_ratio_diff=1):
+        for angle in template['angles']:
+            a1 = self.angle(*angle)
+            a2 = p2.angle(*angle)
+            agl = rad_to_deg(min(abs(a1 - a2), math.pi - abs(a1 - a2)))
+            if agl > max_angle_diff:
+                return False
+        for kp_a, kp_b in template['ratio']:
+            r11 = self.kp_vector(kp_a)
+            r12 = self.kp_vector(kp_b)
+            r21 = p2.kp_vector(kp_a)
+            r22 = p2.kp_vector(kp_b)
+            ratio1 = r11.magnitude / r12.magnitude
+            ratio2 = r21.magnitude / r22.magnitude
+            if abs(ratio1 - ratio2) > max_ratio_diff:
+                return False
+        return True
 
 class PoseSeries(object):
     def __init__(self, poses: Optional[List[Pose]] = None):
@@ -93,7 +128,7 @@ class PoseSeries(object):
                 self.data = np.vstack(np.array(poses))
 
     def __getitem__(self, slice):
-        return self.data[slice]
+        return Pose(self.data[slice])
 
     def kp_series(self, *key: List[str]):
         """

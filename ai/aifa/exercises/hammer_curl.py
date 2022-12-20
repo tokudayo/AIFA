@@ -19,7 +19,7 @@ def is_perpendicular(vec1: Vector, vec2: Vector, allowed_error=15.):
 class HammerCurl(BatchSamplingExercise):
     def __init__(self,
                  window_size: int = 10,
-                 movement_threshold: float = 0.07,
+                 movement_threshold: float = 0.1,
                  straight_arm_threshold: float = 30.,
                  elbow_angle_threshold: float = 80.,):
         super().__init__(window_size)
@@ -27,14 +27,15 @@ class HammerCurl(BatchSamplingExercise):
         self.movement_threshold = movement_threshold
         self.straight_arm_threshold = straight_arm_threshold
         self.elbow_angle_threshold = elbow_angle_threshold
+        self._move_duration = 0
 
     def _decode_state(self, state):
         lstate = 'static' if state[0] != 'l' else state[2:]
         rstate = 'static' if state[0] != 'r' else state[2:]
         return lstate, rstate
 
-    def evaluation(self, verbose=True):
-        window = self.lastest_window()
+    def evaluation(self, window, verbose=True):
+        # window = self.lastest_window()
         msg_list = []
         # if verbose: print(f"STATE: {self.state}, P_STATE: {self.prev_state}")
 
@@ -70,16 +71,28 @@ class HammerCurl(BatchSamplingExercise):
             if right_forearm.angle(right_arm).min() > deg_to_rad(self.elbow_angle_threshold):
                 msg_list.append("Curl your right arm further.")
                 
+        reach_bottom = False
         # When at the bottom
         if lstate != pr_lstate and pr_lstate == 'down':
+            reach_bottom = True
             left_forearm =  window.joint_vector_series('left_elbow', 'left_wrist')
             if not is_perpendicular(left_forearm, xaxis, allowed_error=self.straight_arm_threshold):
                 msg_list.append("Bring the weights on your left hand down fully.")
 
         if rstate != pr_rstate and pr_rstate == 'down':
+            reach_bottom = True
             right_forearm =  window.joint_vector_series('right_elbow', 'right_wrist')
             if not is_perpendicular(right_forearm, xaxis, allowed_error=self.straight_arm_threshold):
                 msg_list.append("Bring the weights on your left hand down fully.")
+
+        if reach_bottom:
+            if self._move_duration < 5:
+                msg_list.append("Bring down your arm slower.")
+            self._move_duration = 0
+        else:
+            if 'down' in self.state:
+                self._move_duration += 1
+        
         return ' '.join(msg_list)
 
     @property

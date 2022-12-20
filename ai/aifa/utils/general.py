@@ -1,5 +1,5 @@
 import time
-
+import math
 
 class Timer(object):
     def __init__(self):
@@ -15,3 +15,10 @@ class Timer(object):
     @property
     def elapsed(self):
         return self._end - self._start
+
+def deg_to_rad(deg):
+    return deg * math.pi / 180
+
+
+def rad_to_deg(rad):
+    return rad * 180 / math.pi
