@@ -118,13 +118,13 @@ Distributed under the **BSD 3-Clause License** License. See `LICENSE` for more i
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- ACKNOWLEDGMENTS -->
-## Acknowledgments
+<!-- ## Acknowledgments
 
 * []()
 * []()
 * []()
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#readme-top">back to top</a>)</p> -->
 
 
 
