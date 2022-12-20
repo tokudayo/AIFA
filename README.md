@@ -18,7 +18,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/tokudayo/AIFA">
-    <img src="docs/logo.png" alt="Logo" width=60>
+    <img src="docs/logo.png" alt="Logo" width=80>
   </a>
 
 <h3 align="center">AIFA</h3>
